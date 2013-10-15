@@ -1,4 +1,4 @@
 BooguNote-Web
 =============
 
-An Html version of BooguNote
+An HTML Implementation of BooguNote
