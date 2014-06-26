@@ -1,140 +1,25 @@
-body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, p, blockquote, th, td {margin:0; padding:0;}
-table {border-collapse:collapse; border-spacing:0;}
-fieldset, img {border:0;}
-address, caption, cite, code, dfn, em, strong, th, var {font-style:normal; font-weight:normal;}
-ol, ul {list-style:none;}
-caption, th {text-align:left;}
-h1, h2, h3, h4, h5, h6 {font-size:100%; font-weight:normal;}
-q:before, q:after {content:'';}
-abbr, acronym {border:0;}
-fieldset {display:inline;}
-button {line-height:1.2; vertical-align:middle; cursor:pointer;}
-
-/**
-* ============== [main] ==============
-*/
-#container {margin: 3px 5px 30px 5px;line-height: 1.5em;font-size: 10pt;z-index: -1;}
-#container a{text-decoration:underline!important;}
-#container a[href^="file://"] {text-decoration: none!important;border-bottom:1px dashed #00f!important;}
-
-#container h1,#container h2,#container h3,#container h4,#container h5,#container h6{line-height: normal;font-weight: bold}
-#container h1{font-size:2em;margin: .67em 0 .67em 0;}
-#container h2{font-size:1.5em;margin: .83em 0 .83em 0;}
-#container h3{font-size:1.17em;margin: 1em 0 1em 0;}
-#container h4{margin: .33em 0 .33em 0;}
-#container h5{font-size:.83em;margin: 1.67em 0 1.67em 0;}
-#container h6{font-size:.67em;margin: 2.33em 0 2.33em 0;}
-
-#container img{max-width:480px;max-height:320px}
-
-#container ul, #container ol{padding-left: 40px;}
-#container ul{list-style: disc outside;}
-#container ol{list-style: decimal outside;}
-
-#container abbr{border-bottom: 1px dashed #969696;}
-
-#container table, #container th, #container td{border: 1px dotted #C0C0C0;}
-/*#container article, #container section.bn{width: 100%;}*/
-/**------- section -------*/
-#container section.bn{display: block;position: relative;outline: none;padding-bottom: 1px;}
-
-/**------- section > aside -------*/
-#container section.bn > aside{
-	display: block;
-	position: absolute;
-	left: 0px;
-	top: 0.75em;
-	height: 7px;width: 7px;
-	margin-top: -4px;
-	border: 1px solid #5692D4;
-	cursor: pointer;
-	background-color: #fff;
+.tree-node {
+    border: 1px solid #dae2ea;
+    background: #f8faff;
+    color: #7c9eb2;
+}
+.tree-node-content {
+    margin: 10px;
+}
+.tree-handle {
+    padding: 10px;
+    background: #428bca;
+    color: #FFF;
+    margin-right: 10px;
 }
 
-#container section.bn.sub > aside:before,
-#container section.bn.collapsed > aside:after
-{content: "";display: block;position: absolute;background-color: #5692D4;}
-
-#container section.bn.sub > aside:before
-{width: 5px;height: 1px;left: 1px;top:3px;}
-
-#container section.bn.sub.collapsed > aside:after
-{width: 1px;height: 5px;left: 3px;top:1px;}
-
-/**------- section > div -------*/
-#container section.bn > div
-{margin-left: 15px;border: 1px solid transparent;min-height:1.5em;border-radius:3px;padding: 0 2px;outline: none;word-wrap:break-word;position: relative;
+.angular-ui-tree-handle:hover {
 }
 
-#container section.bn.shrink > div{
-	overflow:hidden;
-	height: 1.5em;
-	word-break:keep-all;
-	white-space:nowrap;
-	text-overflow:ellipsis;
-	background-color: rgba(0,0,0,0.1);
-	padding-right: 5em;
+.angular-ui-tree-placeholder {
+    background: #f0f9ff;
+    border: 2px dashed #bed2db;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
 }
-
-#container section.bn.shrink > div *{
-    font-size: 10pt!important;
-}
-#container section.bn.shrink > div img{
-    display: none!important;
-}
-
-#container section.bn.selected > div
-{border-style: dashed;border-color: #5692D4;background-color: #C9E2FC;}
-
-#container section.bn > div.focused{border-color: #5692D4;}
-
-/**------- section.icon > div -------*/
-#container section.bn.icon > div{margin-left: 30px;}
-#container section.bn.icon{background-repeat: no-repeat;background-position: 12px 0px;background-attachment: scroll;}
-#container section.bn.icon.flag{background-image: url(../img/i_flag.png)}
-#container section.bn.icon.tick{background-image: url(../img/i_tick.png)}
-#container section.bn.icon.cross{background-image: url(../img/i_cross.png)}
-#container section.bn.icon.star{background-image: url(../img/i_star.png)}
-#container section.bn.icon.question{background-image: url(../img/i_question.png)}
-#container section.bn.icon.warning{background-image: url(../img/i_warning.png)}
-#container section.bn.icon.idea{background-image: url(../img/i_idea.png)}
-
-/*
-#container section.bn.icon > div:before
-{content:"";display:block;position:absolute;top: 0.75em;left: -20px;width: 20px;height: 20px;margin-top: -10px;background: transparent none no-repeat scroll center center;}
-
-#container section.bn.icon.ico1 > div:before{background-image: url(../img/chrome.png)}
-#container section.bn.icon.ico2 > div:before{background-image: url(../img/up.gif)}
-*/
-/**------- article -------*/
-#container section.bn > article{display: block;padding-left: 15px;position: relative;}
-#container section.bn.collapsed > article{display: none;}
-
-/**
-* ============== [branch] ==============
-*/
-/**------- base -------*/
-#container.showbranch section.bn:before,
-#container.showbranch section.bn:after,
-#container.showbranch section.bn > article:before,
-#container.showbranch section.bn > div:after,
-#container section.bn.showbranch > article > section:before,
-#container section.bn.showbranch > article > section:after,
-#container section.bn.showbranch > article:before,
-#container section.bn.showbranch > div:after
-{content : "";position: absolute;background-color: #5692D4;z-index: -1;}
-/**------- section-------*/
-#container section.bn:before{width:1px;height: 100%;left: -11px;top:0;}
-#container section.bn:last-child:before{height: 0.75em;}
-#container section.bn:after{width:11px;height: 1px;left: -11px;top:0.75em;}
-
-#container > section.bn:before,
-#container > section.bn:after
-{display: none;}
-/**------- section > div-------*/
-#container section.bn.sub > div:after{height: 100%;width:1px;left: -12px;top:0.75em;}
-#container section.bn.sub.icon > div:after{left: -27px}
-#container section.bn.collapsed > div:after{display: none;}
-#container section.bn.sub.shrink > article:before{height: 0.75em;width:1px;left: 4px;top:-0.75em;}
-
-

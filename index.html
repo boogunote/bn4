@@ -1,15 +1,56 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>BooguNote</title>
-    <link rel="stylesheet" type="text/css" href="./css/main.css">
-    <script src="./js/lib/jquery-1.11.1.min.js"></script>
-    <script src="./js/main.js"></script>
+  <meta charset="utf-8">
+  <title>BooguNote4</title>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" type="text/css" href="lib/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="lib/angular-ui-tree/angular-ui-tree.min.css">
+  <link rel="stylesheet" href="css/main.css">
 </head>
-<body id="debug">
-    <div id="container">
+<body ng-app="treesApp">
+
+  <!-- Nested node template -->
+  <script type="text/ng-template" id="nodes_renderer.html">
+    <div class="tree-node">
+      <div class="pull-left tree-handle" ui-tree-handle>
+        <span class="glyphicon glyphicon-list"></span>
+      </div>
+      <div class="tree-node-content">
+        <a class="btn btn-success btn-xs" data-nodrag ng-click="toggle(this)"><span class="glyphicon" ng-class="{'glyphicon-chevron-right': collapsed, 'glyphicon-chevron-down': !collapsed}"></span></a>
+        {{node.title}}
+        <a class="pull-right btn btn-danger btn-xs" data-nodrag ng-click="remove(this)"><span class="glyphicon glyphicon-remove"></span></a>
+        <a class="pull-right btn btn-primary btn-xs" data-nodrag ng-click="newSubItem(this)" style="margin-right: 8px;"><span class="glyphicon glyphicon-plus"></span></a>
+      </div>
     </div>
+    <ol ui-tree-nodes="" ng-model="node.nodes" ng-class="{hidden: collapsed}">
+      <li ng-repeat="node in node.nodes" ui-tree-node ng-include="'nodes_renderer.html'">
+      </li>
+    </ol>
+  </script>  
+  <div class="container" ng-controller="treesCtrl">
+    <div class="row">
+      <div class="col-sm-6">
+        <h3>Test Tree</h3>
+        <div ui-tree id="tree1-root">
+          <ol ui-tree-nodes="" ng-model="tree1">
+            <li ng-repeat="node in tree1" ui-tree-node ng-include="'nodes_renderer.html'"></li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <h3>Data binding</h3>
+      <div class="col-sm-6">
+        <pre class="code">{{ tree1 | json }}</pre>
+      </div>
+    </div>
+
+  </div>
+  
+  <script type="text/javascript" src="lib/angular/angular.min.js"></script>
+  <script type="text/javascript" src="lib/angular-ui-tree/angular-ui-tree.js"></script>
+  <script type="text/javascript" src="js/main.js"></script>
 </body>
 </html>
-
