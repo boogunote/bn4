@@ -7,8 +7,8 @@
       function ($scope, $element, $attrs, treeConfig) {
         this.scope = $scope;
 
-        $scope.$element = $element;
-        $scope.$nodeElement = $element;
+        $scope.$element = $element; // xgao: no use.
+        $scope.$nodeElement = $element; // xgao: no use.
         $scope.$modelValue = undefined; // Model value for node;
         $scope.$parentNodeScope = undefined; // uiTreeNode Scope of parent node;
         $scope.$childNodesScope = undefined; // uiTreeNodes Scope of child nodes.
@@ -16,7 +16,7 @@
         $scope.$treeScope = undefined; // uiTree scope
         $scope.$handleScope = undefined; // it's handle scope
         $scope.$type = 'uiTreeNode';
-        $scope.$$apply = false; //
+        $scope.$$apply = false; // xgao: represent if it in a $apply function
         $scope.$dragInfo = undefined;
 
         $scope.collapsed = false;
