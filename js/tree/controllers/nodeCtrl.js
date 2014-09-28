@@ -17,7 +17,7 @@
         $scope.$handleScope = undefined; // it's handle scope
         $scope.$type = 'uiTreeNode';
         $scope.$$apply = false; // xgao: represent if it in a $apply function
-        $scope.$dragInfo = undefined;
+        $scope.$dragInfo = undefined; // xgao: store info needed by drag. refer to helper.js dragInfo()
 
         $scope.collapsed = false;
         $scope.expandOnHover = false;

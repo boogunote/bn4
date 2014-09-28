@@ -8,20 +8,8 @@
         restrict: 'EA',
         scope: {
           callbacks: '=?',
-          dragEnabled: '=?',
-          emptyPlaceholderEnabled: '=?',
-          maxDepth: '=?',
           dragDelay: '=?',
           dragDistance: '=?',
-          lockXKeyString: '=?lockX',
-          lockYKeyString: '=?lockY',
-          boundToString: '=?boundTo',
-          spacing: '=?',
-          coveragePercent: '=?coverage',
-          cancelKeyString: '=?cancelKey',
-          copyKeyString: '=?copyKey',
-          selectKeyString: '=?selectKey',
-          expandOnHover: '=?'
         },
         controller: 'TreeController',
         link: function(scope, element, attrs) {

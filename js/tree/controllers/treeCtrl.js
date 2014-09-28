@@ -28,7 +28,7 @@
         $scope.boundTo = (angular.isUndefined($scope.boundTo)) ? '' : $scope.boundTo;
         $scope.collideWith = 'bottom';
         $scope.coverage = 0.5;
-        $scope.spacing = (angular.isUndefined($scope.spacing)) ? 50 : $scope.spacing;
+        $scope.spacing = 0; //(angular.isUndefined($scope.spacing)) ? 50 : $scope.spacing;
         $scope.spacingThreshold = Math.floor($scope.spacing / 4);
 
         $scope.copyKey = undefined;
