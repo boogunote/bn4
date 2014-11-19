@@ -33,6 +33,7 @@
           // modelValue for current node
           $scope.$modelValue = treeNodesCtrl.scope.$modelValue[$scope.$index];
           $scope.$parentNodesScope = treeNodesCtrl.scope;
+          console.log($scope)
           treeNodesCtrl.scope.initSubNode($scope); // init sub nodes
 
           $element.on('$destroy', function() {
@@ -41,6 +42,8 @@
         };
 
         $scope.toggleSelected = function() {
+          $scope.$childNodesScope.selected = !$scope.selected;
+          $scope.selectSubNode(!$scope.selected);
           if ($scope.selected) {
             $scope.unselect();
           } else {
@@ -51,13 +54,13 @@
         $scope.select = function() {
           if (!$scope.selected && $scope.$treeScope.$callbacks.select($scope)) {
             $scope.selected = true;
-
             $scope.$treeScope.$selecteds.push($scope.$element);
           }
         };
 
         $scope.unselect = function() {
-          if ($scope.selected && $scope.$treeScope.$callbacks.unselect($scope)) {
+          console.log($scope.$parentNodeScope)
+          if (!$scope.$parentNodesScope.selected && $scope.selected && $scope.$treeScope.$callbacks.unselect($scope)) {
             $scope.selected = false;
 
             var indexOf = $scope.$treeScope.$selecteds.indexOf($scope.$element);
@@ -66,6 +69,18 @@
             }
           }
         };
+
+        $scope.selectSubNode = function(select) {
+          var childNodes = $scope.childNodes();
+          for (var i = childNodes.length - 1; i >= 0; i--) {
+            if (select) {
+              childNodes[i].select();
+            } else {
+              childNodes[i].unselect();
+            }
+            childNodes[i].selectSubNode(select);
+          };
+        }
 
         $scope.index = function() {
           return $scope.$parentNodesScope.$modelValue.indexOf($scope.$modelValue);
@@ -184,14 +199,18 @@
         };
 
         $scope.onKeyDown = function(scope, $event) {
-          console.log($event);
-          console.log($event.ctrlKey);
-          console.log($event.altKey);
-          console.log($event.shiftKey);
-          console.log($event.keyCode);
+          //console.log($event);
           if ($event.shiftKey && 13 == $event.keyCode) {
             scope.newSubItem(scope);
             //$event.cancelBubble = true;
+            $event.returnValue = false;
+          }
+        };
+
+        $scope.onClick = function(scope, $event) {
+          //console.log($event);
+          if ($event.ctrlKey) {
+            scope.toggleSelected();
             $event.returnValue = false;
           }
         };

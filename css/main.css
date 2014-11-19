@@ -1,8 +1,13 @@
-.tree-node {
+.tree-node-unselected {
     border: 1px solid #dae2ea;
     background: #f8faff;
-    color: #7c9eb2;
 }
+
+.tree-node-selected {
+    border: 1px solid #dae2ea;
+    background: blue;
+}
+
 .tree-node-content {
     margin: 10px;
 }
