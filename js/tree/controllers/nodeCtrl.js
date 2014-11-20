@@ -33,7 +33,6 @@
           // modelValue for current node
           $scope.$modelValue = treeNodesCtrl.scope.$modelValue[$scope.$index];
           $scope.$parentNodesScope = treeNodesCtrl.scope;
-          console.log($scope)
           treeNodesCtrl.scope.initSubNode($scope); // init sub nodes
 
           $element.on('$destroy', function() {
@@ -42,8 +41,6 @@
         };
 
         $scope.toggleSelected = function() {
-          $scope.$childNodesScope.selected = !$scope.selected;
-          $scope.selectSubNode(!$scope.selected);
           if ($scope.selected) {
             $scope.unselect();
           } else {
@@ -53,20 +50,34 @@
 
         $scope.select = function() {
           if (!$scope.selected && $scope.$treeScope.$callbacks.select($scope)) {
-            $scope.selected = true;
-            $scope.$treeScope.$selecteds.push($scope.$element);
+            $scope.selectNode();
+            $scope.$treeScope.$selecteds.push($scope);
           }
         };
 
         $scope.unselect = function() {
-          console.log($scope.$parentNodeScope)
           if (!$scope.$parentNodesScope.selected && $scope.selected && $scope.$treeScope.$callbacks.unselect($scope)) {
-            $scope.selected = false;
-
-            var indexOf = $scope.$treeScope.$selecteds.indexOf($scope.$element);
+            $scope.unselectNode();
+            var indexOf = $scope.$treeScope.$selecteds.indexOf($scope);
             if (angular.isDefined(indexOf) && indexOf > -1) {
               $scope.$treeScope.$selecteds.splice(indexOf, 1);
             }
+          }
+        };
+
+        $scope.selectNode = function() {
+          if (!$scope.selected && $scope.$treeScope.$callbacks.select($scope)) {
+            $scope.$childNodesScope.selected = true;
+            $scope.selectSubNode(true);
+            $scope.selected = true;
+          }
+        };
+
+        $scope.unselectNode = function() {
+          if (!$scope.$parentNodesScope.selected && $scope.selected && $scope.$treeScope.$callbacks.unselect($scope)) {
+            $scope.$childNodesScope.selected = false;
+            $scope.selectSubNode(false);
+            $scope.selected = false;
           }
         };
 
@@ -74,13 +85,79 @@
           var childNodes = $scope.childNodes();
           for (var i = childNodes.length - 1; i >= 0; i--) {
             if (select) {
-              childNodes[i].select();
+              childNodes[i].selectNode();
             } else {
-              childNodes[i].unselect();
+              childNodes[i].unselectNode();
             }
             childNodes[i].selectSubNode(select);
           };
         }
+
+        $scope.createContentNode = function() {
+          var node = {};
+          node.content = $scope.node.content;
+          node.nodes = [];
+          var childNodes = $scope.childNodes();
+          for (var i = 0; i < childNodes.length; i++) {
+            node.nodes.push(childNodes[i].createContentNode());
+          };
+          return node;
+        }
+
+        $scope.copy = function () {
+          var selectedNodes = [];
+          for (var i = 0; i < $scope.$treeScope.$selecteds.length; i++) {
+            selectedNodes.push($scope.$treeScope.$selecteds[i].createContentNode())
+          };
+          delete localStorage.clipboardData;
+          localStorage.clipboardData = undefined;
+          localStorage.clipboardData = JSON.stringify(selectedNodes);
+          console.log(JSON.stringify(localStorage.clipboardData));
+        }
+
+        $scope.paste = function() {
+          var clipboardData = localStorage.getItem("clipboardData");
+          if (!clipboardData) return;
+
+          var pasteData = JSON.parse(clipboardData);
+
+          for (var i = 0, index = $scope.index(); i < pasteData.length; i++) {
+           $scope.$parentNodesScope.insertNode(index+i+1, pasteData[i]);
+          };
+        }
+
+        $scope.newSubItem = function(scope) {
+          var nodeData = scope.$modelValue;
+          nodeData.nodes.push({
+            id: nodeData.id * 10 + nodeData.nodes.length,
+            content: "",
+            nodes: []
+          });
+        };
+
+        $scope.onKeyDown = function(scope, $event) {
+          console.log($event.keyCode);
+          $event.returnValue = false;
+          if ($event.shiftKey && 13 == $event.keyCode) {
+            scope.newSubItem(scope);
+          } else if ($event.ctrlKey && 67 == $event.keyCode) {
+            if (0 < $scope.$treeScope.$selecteds.length) {
+              $scope.copy();
+            }
+          } else if ($event.ctrlKey && 86 == $event.keyCode) {
+            $scope.paste();
+          } else {
+            $event.returnValue = true;
+          }
+        };
+
+        $scope.onClick = function(scope, $event) {
+          //console.log($event);
+          if ($event.ctrlKey) {
+            scope.toggleSelected();
+            $event.returnValue = false;
+          }
+        };
 
         $scope.index = function() {
           return $scope.$parentNodesScope.$modelValue.indexOf($scope.$modelValue);
@@ -188,33 +265,6 @@
 
           return subDepth;
         };
-
-        $scope.newSubItem = function(scope) {
-          var nodeData = scope.$modelValue;
-          nodeData.nodes.push({
-            id: nodeData.id * 10 + nodeData.nodes.length,
-            title: nodeData.title + '.' + (nodeData.nodes.length + 1),
-            nodes: []
-          });
-        };
-
-        $scope.onKeyDown = function(scope, $event) {
-          //console.log($event);
-          if ($event.shiftKey && 13 == $event.keyCode) {
-            scope.newSubItem(scope);
-            //$event.cancelBubble = true;
-            $event.returnValue = false;
-          }
-        };
-
-        $scope.onClick = function(scope, $event) {
-          //console.log($event);
-          if ($event.ctrlKey) {
-            scope.toggleSelected();
-            $event.returnValue = false;
-          }
-        };
-
       }
     ]);
 })();

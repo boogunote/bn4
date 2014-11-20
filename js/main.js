@@ -3,24 +3,51 @@
 
   angular.module('treesApp', ['ui.tree'])
   .controller('treesCtrl', function($scope) {
-
-    $scope.tree1 = [{
+    localStorage.removeItem("clipboardData");
+    $scope.tree1 = [
+    {
       "id": 1,
-      "title": "tree1 - item1",
-      "nodes": [],
-    }, {
+      "content": "1",
+      "nodes": []
+    },
+    {
       "id": 2,
-      "title": "tree1 - item2",
-      "nodes": [],
-    }, {
+      "content": "2",
+      "nodes": [
+      {
+        "id": 20,
+        "content": "20",
+        "nodes": [
+        {
+          "id": 200,
+          "content": "200",
+          "nodes": []
+        }
+        ]
+      },
+      {
+        "id": 21,
+        "content": "21",
+        "nodes": []
+      },
+      {
+        "id": 22,
+        "content": "22",
+        "nodes": []
+      }
+      ]
+    },
+    {
       "id": 3,
-      "title": "tree1 - item3",
-      "nodes": [],
-    }, {
+      "content": "3",
+      "nodes": []
+    },
+    {
       "id": 4,
-      "title": "tree1 - item4",
-      "nodes": [],
-    }];
+      "content": "4",
+      "nodes": []
+    }
+    ];
   });
 
 })();
