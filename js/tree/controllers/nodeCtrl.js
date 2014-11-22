@@ -25,6 +25,7 @@
         //$scope.node.selected = false;
 
         $scope.init = function(controllersArr) {
+          $scope.$treeNodesCtrl = controllersArr[0];
           var treeNodesCtrl = controllersArr[0];
           $scope.$treeScope = controllersArr[1] ? controllersArr[1].scope : undefined;
 
@@ -51,14 +52,14 @@
         $scope.select = function() {
           if (!$scope.node.selected && $scope.$treeScope.$callbacks.select($scope)) {
             $scope.selectNode();
-            $scope.$treeScope.$selecteds.push($scope);
+            $scope.$treeScope.$selecteds.push($scope.node);
           }
         };
 
         $scope.unselect = function() {
           if (!$scope.$parentNodesScope.selected && $scope.node.selected && $scope.$treeScope.$callbacks.unselect($scope)) {
             $scope.unselectNode();
-            var indexOf = $scope.$treeScope.$selecteds.indexOf($scope);
+            var indexOf = $scope.$treeScope.$selecteds.indexOf($scope.node);
             if (angular.isDefined(indexOf) && indexOf > -1) {
               $scope.$treeScope.$selecteds.splice(indexOf, 1);
             }
@@ -93,28 +94,35 @@
           };
         }
 
-        $scope.createContentNode = function() {
+        $scope.createContentNode = function(selected_node) {
           var node = {};
-          node.content = $scope.node.content;
-          node.selected = $scope.node.selected;
-          node.collapsed = $scope.node.collapsed;
+          node.content = selected_node.content;
+          node.selected = selected_node.selected;
+          node.collapsed = selected_node.collapsed;
           node.nodes = [];
-          var childNodes = $scope.childNodes();
-          for (var i = 0; i < childNodes.length; i++) {
-            node.nodes.push(childNodes[i].createContentNode());
+          for (var i = 0; i < selected_node.nodes.length; i++) {
+            node.nodes.push($scope.createContentNode(selected_node.nodes[i]));
           };
           return node;
         }
 
         $scope.copy = function () {
+          console.log($scope.$treeNodesCtrl.scope.$modelValue[0] === $scope.$treeScope.$selecteds[0]);
           var selectedNodes = [];
           for (var i = 0; i < $scope.$treeScope.$selecteds.length; i++) {
-            selectedNodes.push($scope.$treeScope.$selecteds[i].createContentNode())
+            selectedNodes.push($scope.createContentNode($scope.$treeScope.$selecteds[i]))
           };
           delete localStorage.clipboardData;
           localStorage.clipboardData = undefined;
           localStorage.clipboardData = JSON.stringify(selectedNodes);
           console.log(JSON.stringify(localStorage.clipboardData));
+        }
+
+        var cleanSubNodeStatus = function(node) {
+          for (var i = 0; i < node.nodes.length; i++) {
+            node.nodes[i].selected = false;
+            cleanSubNodeStatus(node.nodes[i]);
+          };
         }
 
         $scope.paste = function() {
@@ -123,9 +131,15 @@
 
           var pasteData = JSON.parse(clipboardData);
 
+          for (var i = 0; i < $scope.$treeScope.$selecteds.length; i++) {
+            $scope.$treeScope.$selecteds[i].selected = false;
+            cleanSubNodeStatus($scope.$treeScope.$selecteds[i]);
+          };
+
           for (var i = 0, index = $scope.index(); i < pasteData.length; i++) {
            $scope.$parentNodesScope.insertNode(index+i+1, pasteData[i]);
           };
+          $scope.$treeScope.$selecteds = pasteData;
         }
 
         $scope.newSubItem = function(scope) {
@@ -144,6 +158,7 @@
             scope.newSubItem(scope);
           } else if ($event.ctrlKey && 67 == $event.keyCode) {
             if (0 < $scope.$treeScope.$selecteds.length) {
+              console.log($scope.$treeScope.$selecteds);
               $scope.copy();
             }
           } else if ($event.ctrlKey && 86 == $event.keyCode) {
