@@ -163,8 +163,9 @@
               console.log($scope.$treeScope.$selecteds);
               $scope.copy();
             }
-          } else if ($event.ctrlKey && 86 == $event.keyCode) {
+          } else if ($event.ctrlKey && $event.shiftKey && 86 == $event.keyCode) {
             $scope.paste();
+            $event.cancelBubble = true;
           } else {
             $event.returnValue = true;
           }
