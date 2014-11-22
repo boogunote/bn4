@@ -2,8 +2,8 @@
   'use strict';
 
   angular.module('ui.tree')
-    .controller('TreeController', ['$scope', '$element', '$window', '$attrs', 'treeConfig', 'keys',
-      function ($scope, $element, $window, $attrs, treeConfig, keys) {
+    .controller('TreeController', ['$scope', '$element', '$window', '$attrs', 'treeConfig', 'keys', '$uiTreeHelper',
+      function ($scope, $element, $window, $attrs, treeConfig, keys, $uiTreeHelper) {
         this.scope = $scope;
 
         $scope.$element = $element;
@@ -168,34 +168,16 @@
         $scope.$on('expandAll', $scope.expandAll);
 
 
-        var cleanSubNodeStatus = function(node) {
-          for (var i = 0; i < node.nodes.length; i++) {
-            node.nodes[i].selected = false;
-            cleanSubNodeStatus(node.nodes[i]);
-          };
-        }
-
         $scope.clearSelectedAndClippedState = function() {
           for (var i = 0; i < $scope.$selecteds.length; i++) {
             $scope.$selecteds[i].selected = false;
-            cleanSubNodeStatus($scope.$selecteds[i]);
+            $uiTreeHelper.cleanSubNodeStatus($scope.$selecteds[i]);
           };
           $scope.$selecteds = [];
         }
 
-        $scope.safeApply = function(fn) {
-          var phase = this.$root.$$phase;
-          if (phase == '$apply' || phase == '$digest') {
-            if (fn && (typeof(fn) === 'function')) {
-              fn();
-            }
-          } else {
-            this.$apply(fn);
-          }
-        };
-
         $scope.onKeyDown = function(event) {
-          $scope.safeApply(function() {
+          $uiTreeHelper.safeApply($scope, function() {
             event.returnValue = false;
             console.log("adsafdsf")
             if (27 == event.keyCode) {

@@ -23,6 +23,24 @@
           nodesData: {
           },
 
+          safeApply: function($scope, fn) {
+            var phase = $scope.$root.$$phase;
+            if (phase == '$apply' || phase == '$digest') {
+              if (fn && (typeof(fn) === 'function')) {
+                fn();
+              }
+            } else {
+              $scope.$apply(fn);
+            }
+          },
+
+          cleanSubNodeStatus: function(node) {
+            for (var i = 0; i < node.nodes.length; i++) {
+              node.nodes[i].selected = false;
+              this.cleanSubNodeStatus(node.nodes[i]);
+            };
+          },
+
           setNodeAttribute: function(scope, attrName, val) {
             if (!scope.$modelValue) {
               return undefined;

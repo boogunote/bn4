@@ -3,8 +3,8 @@
 
   angular.module('ui.tree')
 
-    .controller('TreeNodeController', ['$scope', '$element', '$attrs', 'treeConfig',
-      function ($scope, $element, $attrs, treeConfig) {
+    .controller('TreeNodeController', ['$scope', '$element', '$attrs', 'treeConfig', '$uiTreeHelper',
+      function ($scope, $element, $attrs, treeConfig, $uiTreeHelper) {
         this.scope = $scope;
 
         $scope.$element = $element; // xgao: no use.
@@ -118,13 +118,6 @@
           console.log(JSON.stringify(localStorage.clipboardData));
         }
 
-        var cleanSubNodeStatus = function(node) {
-          for (var i = 0; i < node.nodes.length; i++) {
-            node.nodes[i].selected = false;
-            cleanSubNodeStatus(node.nodes[i]);
-          };
-        }
-
         $scope.paste = function() {
           var clipboardData = localStorage.getItem("clipboardData");
           if (!clipboardData) return;
@@ -133,7 +126,7 @@
 
           for (var i = 0; i < $scope.$treeScope.$selecteds.length; i++) {
             $scope.$treeScope.$selecteds[i].selected = false;
-            cleanSubNodeStatus($scope.$treeScope.$selecteds[i]);
+            $uiTreeHelper.cleanSubNodeStatus($scope.$treeScope.$selecteds[i]);
           };
 
           for (var i = 0, index = $scope.index(); i < pasteData.length; i++) {
