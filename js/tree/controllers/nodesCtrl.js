@@ -72,7 +72,7 @@
         $scope.removeNode = function(node) {
           var deferred = $q.defer();
 
-          var index = $scope.$modelValue.indexOf(node.$modelValue);
+          var index = $scope.$modelValue.indexOf(node);
           if (index > -1) {
             $scope.safeApply(function() {
               $scope.$modelValue.splice(index, 1)[0];

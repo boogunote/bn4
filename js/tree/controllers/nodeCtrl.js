@@ -71,6 +71,7 @@
             $scope.$childNodesScope.selected = true;
             $scope.selectSubNode(true);
             $scope.node.selected = true;
+            $scope.node.$parentNodesScope = $scope.$parentNodesScope;
           }
         };
 
@@ -79,6 +80,7 @@
             $scope.$childNodesScope.selected = false;
             $scope.selectSubNode(false);
             $scope.node.selected = false;
+            $scope.node.$parentNodesScope = undefined;
           }
         };
 
@@ -168,8 +170,15 @@
           return node;
         };
 
+        $scope.deleteSelectNodes = function() {
+          for (var i = 0; i < $scope.$treeScope.$selecteds.length; i++) {
+            $scope.$treeScope.$selecteds[i].$parentNodesScope.removeNode($scope.$treeScope.$selecteds[i]);
+          };
+          
+        }
+
         $scope.onKeyDown = function(scope, $event) {
-          //console.log($event);
+          //console.log($event.keyCode);
           $event.returnValue = false;
           if ($event.shiftKey && 13 == $event.keyCode) {
             var node = scope.newSubItem(scope);
@@ -199,6 +208,8 @@
           } else if ($event.ctrlKey && $event.shiftKey && 86 == $event.keyCode) {
             $scope.paste();
             $event.cancelBubble = true;
+          } else if ($event.ctrlKey && 46 == $event.keyCode) {
+            $scope.deleteSelectNodes();
           } else {
             $event.returnValue = true;
           }
@@ -272,7 +283,7 @@
         };
 
         $scope.remove = function() {
-          return $scope.$parentNodesScope.removeNode($scope);
+          return $scope.$parentNodesScope.removeNode($scope.$modelValue);
         };
 
         $scope.toggle = function() {

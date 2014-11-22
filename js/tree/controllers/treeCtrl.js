@@ -171,6 +171,7 @@
         $scope.clearSelectedAndClippedState = function() {
           for (var i = 0; i < $scope.$selecteds.length; i++) {
             $scope.$selecteds[i].selected = false;
+            $scope.$selecteds[i].$parentNodesScope = undefined;
             $uiTreeHelper.cleanSubNodeStatus($scope.$selecteds[i]);
           };
           $scope.$selecteds = [];
