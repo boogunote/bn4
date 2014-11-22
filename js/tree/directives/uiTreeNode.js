@@ -15,6 +15,7 @@
               element.addClass(config.nodeClass);
             }
             scope.init(controllersArr);
+            //console.log(element);
 
             var hasTouch = 'ontouchstart' in window;
           }

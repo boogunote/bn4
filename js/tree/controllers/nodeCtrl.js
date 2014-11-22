@@ -3,7 +3,7 @@
 
   angular.module('ui.tree')
 
-    .controller('TreeNodeController', ['$scope', '$element', '$attrs', 'treeConfig', '$uiTreeHelper',
+    .controller('TreeNodeController', ['$scope', '$element', '$attrs', 'treeConfig', '$uiTreeHelper', 
       function ($scope, $element, $attrs, treeConfig, $uiTreeHelper) {
         this.scope = $scope;
 
@@ -137,18 +137,27 @@
 
         $scope.newSubItem = function(scope) {
           var nodeData = scope.$modelValue;
-          nodeData.nodes.push({
+          var node = {
             id: nodeData.id * 10 + nodeData.nodes.length,
             content: "",
             nodes: []
-          });
+          };
+          nodeData.nodes.splice(0, 0, node);
+          return node;
         };
 
         $scope.onKeyDown = function(scope, $event) {
-          console.log($event.keyCode);
+          //console.log($event);
           $event.returnValue = false;
           if ($event.shiftKey && 13 == $event.keyCode) {
-            scope.newSubItem(scope);
+            var node = scope.newSubItem(scope);
+            setTimeout(function(){
+              var nodeScope = $scope.$childNodesScope.getSubNode(node.$$hashKey);
+              console.log(nodeScope.$element[0]);
+              nodeScope.$element[0].childNodes[1].childNodes[3].childNodes[5].focus();
+            }, 0);
+            
+            $event.cancelBubble = true;
           } else if ($event.ctrlKey && 67 == $event.keyCode) {
             if (0 < $scope.$treeScope.$selecteds.length) {
               console.log($scope.$treeScope.$selecteds);

@@ -22,6 +22,7 @@
         $scope.selected = false;
 
         $scope.initSubNode = function(subNode) {
+          //console.log(subNode);
           if (!subNode.$modelValue) {
             return undefined;
           }
@@ -34,6 +35,12 @@
           }
           $scope.$nodesMap[subNode.$modelValue.$$hashKey] = undefined;
         };
+
+        $scope.getSubNode = function(hashKey) {
+          console.log($scope.$nodesMap)
+          console.log(hashKey)
+          return $scope.$nodesMap[hashKey];
+        }
 
         $scope.accept = function(sourceNode, destIndex) {
           return $scope.$treeScope.$callbacks.accept(sourceNode, $scope, destIndex);
