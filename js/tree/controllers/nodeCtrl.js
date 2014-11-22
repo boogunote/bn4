@@ -19,10 +19,10 @@
         $scope.$$apply = false; // xgao: represent if it in a $apply function
         $scope.$dragInfo = undefined; // xgao: store info needed by drag. refer to helper.js dragInfo()
 
-        $scope.collapsed = false;
+        //$scope.node.collapsed = false;
         $scope.expandOnHover = false;
 
-        $scope.selected = false;
+        //$scope.node.selected = false;
 
         $scope.init = function(controllersArr) {
           var treeNodesCtrl = controllersArr[0];
@@ -41,7 +41,7 @@
         };
 
         $scope.toggleSelected = function() {
-          if ($scope.selected) {
+          if ($scope.node.selected) {
             $scope.unselect();
           } else {
             $scope.select();
@@ -49,14 +49,14 @@
         };
 
         $scope.select = function() {
-          if (!$scope.selected && $scope.$treeScope.$callbacks.select($scope)) {
+          if (!$scope.node.selected && $scope.$treeScope.$callbacks.select($scope)) {
             $scope.selectNode();
             $scope.$treeScope.$selecteds.push($scope);
           }
         };
 
         $scope.unselect = function() {
-          if (!$scope.$parentNodesScope.selected && $scope.selected && $scope.$treeScope.$callbacks.unselect($scope)) {
+          if (!$scope.$parentNodesScope.selected && $scope.node.selected && $scope.$treeScope.$callbacks.unselect($scope)) {
             $scope.unselectNode();
             var indexOf = $scope.$treeScope.$selecteds.indexOf($scope);
             if (angular.isDefined(indexOf) && indexOf > -1) {
@@ -66,18 +66,18 @@
         };
 
         $scope.selectNode = function() {
-          if (!$scope.selected && $scope.$treeScope.$callbacks.select($scope)) {
+          if (!$scope.node.selected && $scope.$treeScope.$callbacks.select($scope)) {
             $scope.$childNodesScope.selected = true;
             $scope.selectSubNode(true);
-            $scope.selected = true;
+            $scope.node.selected = true;
           }
         };
 
         $scope.unselectNode = function() {
-          if (!$scope.$parentNodesScope.selected && $scope.selected && $scope.$treeScope.$callbacks.unselect($scope)) {
+          if (!$scope.$parentNodesScope.selected && $scope.node.selected && $scope.$treeScope.$callbacks.unselect($scope)) {
             $scope.$childNodesScope.selected = false;
             $scope.selectSubNode(false);
-            $scope.selected = false;
+            $scope.node.selected = false;
           }
         };
 
@@ -96,6 +96,8 @@
         $scope.createContentNode = function() {
           var node = {};
           node.content = $scope.node.content;
+          node.selected = $scope.node.selected;
+          node.collapsed = $scope.node.collapsed;
           node.nodes = [];
           var childNodes = $scope.childNodes();
           for (var i = 0; i < childNodes.length; i++) {
@@ -223,15 +225,15 @@
         };
 
         $scope.toggle = function() {
-          $scope.collapsed = !$scope.collapsed;
+          $scope.node.collapsed = !$scope.node.collapsed;
         };
 
         $scope.collapse = function(all) {
-          $scope.collapsed = $scope.$treeScope.$callbacks.collapse($scope, all);
+          $scope.node.collapsed = $scope.$treeScope.$callbacks.collapse($scope, all);
         };
 
         $scope.expand = function(all) {
-          $scope.collapsed = !$scope.$treeScope.$callbacks.expand($scope, all);
+          $scope.node.collapsed = !$scope.$treeScope.$callbacks.expand($scope, all);
         };
 
         $scope.depth = function() {

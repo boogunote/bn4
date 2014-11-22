@@ -16,17 +16,6 @@
             }
             scope.init(controllersArr);
 
-            scope.collapsed = !!$uiTreeHelper.getNodeAttribute(scope, 'collapsed');
-            scope.$watch(attrs.collapsed, function(val) {
-              if ((typeof val) === "boolean") {
-                scope.collapsed = val;
-              }
-            });
-            scope.$watch('collapsed', function(val) {
-              $uiTreeHelper.setNodeAttribute(scope, 'collapsed', val);
-              attrs.$set('collapsed', val);
-            });
-
             var hasTouch = 'ontouchstart' in window;
           }
         };
