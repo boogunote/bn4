@@ -37,8 +37,8 @@
         };
 
         $scope.getSubNode = function(hashKey) {
-          console.log($scope.$nodesMap)
-          console.log(hashKey)
+          //console.log($scope.$nodesMap)
+          //console.log(hashKey)
           return $scope.$nodesMap[hashKey];
         }
 

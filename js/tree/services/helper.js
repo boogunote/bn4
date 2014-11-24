@@ -23,6 +23,10 @@
           nodesData: {
           },
 
+          getUniqueId : function() {
+            return Math.random().toString(36).substring(2)+new Date().getTime().toString()
+          },
+
           safeApply: function($scope, fn) {
             var phase = $scope.$root.$$phase;
             if (phase == '$apply' || phase == '$digest') {

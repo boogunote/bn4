@@ -3,8 +3,8 @@
 
   angular.module('ui.tree')
 
-    .controller('TreeNodeController', ['$scope', '$element', '$attrs', 'treeConfig', '$uiTreeHelper', 
-      function ($scope, $element, $attrs, treeConfig, $uiTreeHelper) {
+    .controller('TreeNodeController', ['$scope', '$element', '$attrs', 'treeConfig', '$uiTreeHelper', '$firebase',
+      function ($scope, $element, $attrs, treeConfig, $uiTreeHelper, $firebase) {
         this.scope = $scope;
 
         $scope.$element = $element; // xgao: no use.
@@ -35,6 +35,162 @@
           $scope.$modelValue = treeNodesCtrl.scope.$modelValue[$scope.$index];
           $scope.$parentNodesScope = treeNodesCtrl.scope;
           treeNodesCtrl.scope.initSubNode($scope); // init sub nodes
+
+          //console.log($scope.node_key)
+
+          var node_base_url = $scope.base_url + "/nodes";
+
+          //You should put an empty node here. The binding will cause error without an empty child array.
+           $scope.node = {
+             content : "",
+             collapsed : true,
+          //   selected : false,
+          //   children:[]
+          };
+
+          $scope.children = $scope.node_stub.children;
+
+          var node_url = node_base_url + "/" + $scope.node_stub.key;
+          // if (!$scope.node_stub.children) {
+          //   $scope.node_stub.children = [];
+          //   $scope.$parentNodesScope.initSubNode($scope); // init sub nodes
+          // };
+          //$scope.children = $scope.node_stub.children;
+          // console.log("dsdfsdfsdfdsfsdfsd: "+ node_url);
+          // console.log($scope.node_stub);
+          var node = $firebase(new Firebase(node_url)).$asObject();
+          node.$loaded().then(function() {
+            node.$bindTo($scope, "node").then(function() {
+              //console.log($scope.node)
+              // $scope.$watch(function() {
+              //     return $scope.node.children
+              //   }, 
+              //   function(newVal, oldVal) {
+              //     if (newVal != oldVal) {
+              //     }
+              //   });
+              // node.$watch(function(){
+              //   //console.log(node)
+              // });
+            });
+
+            
+          });
+
+          // $scope.$watch(function() {
+          //     return $scope.node
+          //   }, 
+          //   function(newVal, oldVal) {
+          //   console.log("watch");
+          //   console.log(newVal);
+          //   console.log(oldVal);
+          // });
+
+          // $scope.$watch(function() {
+          //     return $scope.node_stub
+          //   }, 
+          //   function(newVal, oldVal) {
+          //   console.log("watch node_stub");
+          //   console.log(JSON.stringify(newVal, null, 2));
+          //   console.log(JSON.stringify(oldVal, null, 2));
+          // });
+
+
+
+          
+
+          // $scope.node.nodes = [];
+          // var temp_list = [];
+          // var node_count = 0;
+          // for (var i = 0; !!$scope.node.children && i < $scope.node.children.length; i++) {
+          //   console.log($scope.base_url + "/nodes/" + $scope.node.children[i])
+          //   var ref = new Firebase($scope.base_url + "/nodes/" + $scope.node.children[i]);
+          //   var node = $firebase(ref).$asObject();
+          //   node.$ref = ref;
+          //   temp_list.push(node);
+          //   node.$loaded().then(function() {
+          //     node_count = node_count + 1;
+          //     if (node_count == $scope.node.children.length) {
+          //       for (var i = 0; i < temp_list.length; i++) {
+          //         temp_list[i].collapsed = false;
+          //         temp_list[i].selected = false;
+          //         $scope.node.nodes.push({
+          //           content : temp_list[i].content,
+          //           collapsed : temp_list[i].collapsed,
+          //           selected : false,
+          //           children : temp_list[i].children,
+          //           $remoteNode : temp_list[i]
+          //         });
+          //       };
+          //     };
+          //   })
+          // };
+
+          //console.log($firebase($scope.node.$ref.child("content")).$asObject().$bindTo($scope.node, "content"));
+
+
+          // //var path= "/content";
+          // var path= "";
+          // var currentScope = $scope;
+          // while(currentScope) {
+          //   var index = currentScope.$parentNodesScope.$modelValue.indexOf(currentScope.node);
+          //   //console.log(index);
+          //   path = index + path;
+          //   currentScope = currentScope.$parentNodeScope;
+          //   if (!currentScope) break;
+          //   path = "/nodes/" + path;
+          // }
+          // // console.log(path)
+          // // console.log($scope.ref)
+
+          // var remoteNode = $firebase($scope.ref.child(path)).$asObject();
+          //console.log($scope.node.$remoteNode)
+          //$scope.node.$remoteNode.$bindTo($scope, "$remoteNode");
+          // //setTimeout(function() {console.log($scope.remoteNode)}, 10000);
+
+          // $scope.$watch(function() {
+          //     return $scope.node.content
+          //   }, 
+          //   function(newVal, oldVal) {
+          //   if (newVal != oldVal) {
+          //     $scope.node.$remoteNode.content = newVal;
+          //     $scope.node.$remoteNode.$save();
+          //   }
+          // });
+
+          // console.log($scope.node.$remoteNode)
+          // $scope.node.$remoteNode.$watch(function(){
+          //   //console.log(remoteNode.content)
+          //   if ($scope.node.content != $scope.node.$remoteNode.content) {
+          //     $scope.node.content = $scope.node.$remoteNode.content;
+          //   }
+          //   if ($scope.node.collapsed != $scope.node.$remoteNode.collapsed) {
+          //     $scope.node.collapsed = $scope.node.$remoteNode.collapsed
+          //   }
+          // })
+
+          // if ($scope.node.nodes) {
+          //   $scope.node.nodes.push({content:"testtest"});
+          // }
+
+          // $scope.$watch(function() {
+          //     return $scope.remoteNode.content;
+          //   }, 
+          //   function(newVal, oldVal) {
+          //   if (newVal != oldVal) {
+          //     $scope.node.content = newVal;
+          //   }
+          // });
+
+          // $scope.$watch(function() {
+          //     return $scope.node.collapsed
+          //   }, 
+          //   function(newVal, oldVal) {
+          //   if (newVal != oldVal) {
+          //     $scope.node.$remoteNode.collapsed = newVal;
+          //     $scope.node.$remoteNode.$save();
+          //   }
+          // });
 
           $element.on('$destroy', function() {
             treeNodesCtrl.scope.destroySubNode($scope); // destroy sub nodes
@@ -117,7 +273,7 @@
           delete localStorage.clipboardData;
           localStorage.clipboardData = undefined;
           localStorage.clipboardData = JSON.stringify(selectedNodes);
-          console.log(JSON.stringify(localStorage.clipboardData));
+          //console.log(JSON.stringify(localStorage.clipboardData));
         }
 
         $scope.paste = function() {
@@ -137,37 +293,99 @@
           $scope.$treeScope.$selecteds = pasteData;
         }
 
-        $scope.newSubItem = function(scope) {
-          var nodeData = scope.$modelValue;
-          var node = {
-            content: "",
-            nodes: []
+        $scope.syncNodesToRemote = function(nodesScope) {
+          var path= "";
+          var currentScope = nodesScope.$nodeScope;
+          while(currentScope) {
+            //console.log("wawa")
+            var nodes = currentScope.$parentNodesScope.$modelValue;
+            var index = -1;
+            for (var i = 0; i < nodes.length; i++) {
+              //console.log("nodes[i].key:"+nodes[i].key + " currentScope.node_stub.key:" + currentScope.node_stub.key)
+              if (nodes[i].key == currentScope.node_stub.key) {
+                index = i;
+                break;
+              }
+            };
+            //var index = currentScope.$parentNodesScope.$modelValue.indexOf(currentScope.node);
+            //console.log("index:"+index);
+            path = "/children/" +index + path;
+            currentScope = currentScope.$parentNodeScope;
+            //if (!currentScope) break;
+          }
+          //console.log("ddddddddddddddddddddddd")
+          //console.log($scope.tree_url+path)
+          var sync = $firebase(new Firebase($scope.tree_url+path));
+          //console.log(scope.$nodeScope.node_stub)
+          var clone_tree = function(old_tree) {
+            var new_tree = {
+              key : old_tree.key,
+              children : []
+            };
+            for (var i = 0; !!old_tree.children && i < old_tree.children.length; i++) {
+              new_tree.children.push(clone_tree(old_tree.children[i]))
+            }
+            return new_tree;
           };
-          nodeData.nodes.splice(0, 0, node);
-          return node;
+          var new_tree = clone_tree(nodesScope.$nodeScope.node_stub)
+          //console.log(new_tree)
+          sync.$set(new_tree);
+        }
+
+        $scope.addNewItem = function(nodesScope, position) {
+          var new_key = $uiTreeHelper.getUniqueId();
+          var node_stub = {
+            key : new_key,
+            children : []
+          }
+          //console.log("scope.$modelValue : " + JSON.stringify(scope.$modelValue, null, 2))
+          //console.log(scope.$modelValue)
+          nodesScope.$modelValue.splice(position, 0, node_stub);
+          //console.log(scope.$modelValue)
+          setTimeout(function(){
+            $scope.focusNode(nodesScope, node_stub.$$hashKey);
+          }, 0);
+          var sync = $firebase(new Firebase($scope.base_url + "/nodes"));
+          sync.$set(new_key, {
+            content : "",
+            collapsed : false,
+          }).then(function(ref) {
+            //console.log("ref key(): " + ref.key());   // key for the new ly created record
+          }, function(error) {
+            console.log("Error:", error);
+          });
+
+          $scope.syncNodesToRemote(nodesScope);
+        }
+
+        $scope.newSubItem = function(scope) {
+          //console.log(JSON.stringify($scope.tree))
+          // if (!$scope.$childNodesScope.$modelValue) {
+          //   $scope.$childNodesScope.$modelValue = [];
+          //   $scope.$parentNodesScope.initSubNode($scope); // init sub nodes
+          // }
+          //console.log("newSubItem: " + JSON.stringify($scope.$childNodesScope.$modelValue, null, 2))
+          setTimeout(function(){
+            $scope.addNewItem($scope.$childNodesScope, 0);
+          }, 0);
         };
 
         $scope.focusNode = function(nodesScope, hashKey) {
           var nodeScope = nodesScope.getSubNode(hashKey);
-          console.log(nodeScope.$element[0]);
-          nodeScope.$element[0].childNodes[1].childNodes[3].childNodes[5].focus();
+          if (nodeScope)
+            nodeScope.$element[0].childNodes[1].childNodes[3].childNodes[3].focus();
         }
 
         $scope.newSiblingNode = function(next) {
-          var node = {
-            content: "",
-            nodes: []
-          };
           var index = $scope.index();
-          console.log($scope.$parentNodesScope.$modelValue);
           var position = -1;
           if (next) {
             position = index+1;
           } else {
             position = index;
           }
-          $scope.$parentNodesScope.$modelValue.splice(position, 0, node);
-          return node;
+          //console.log($scope.$parentNodesScope);
+          $scope.addNewItem($scope.$parentNodesScope, position);
         };
 
         $scope.deleteSelectNodes = function() {
@@ -182,27 +400,31 @@
           $event.returnValue = false;
           if ($event.shiftKey && 13 == $event.keyCode) {
             var node = scope.newSubItem(scope);
-            setTimeout(function(){
-              $scope.focusNode($scope.$childNodesScope, node.$$hashKey);
-            }, 0);
+            // setTimeout(function(){
+            //   $scope.focusNode($scope.$childNodesScope, node.$$hashKey);
+            // }, 0);
             
             $event.cancelBubble = true;
           } else if (13 == $event.keyCode) {
+            //console.log($event)
             var direction = null;
             if ($event.ctrlKey) {
               direction = true;
-            } else if ($event.ctrlKey) {
+            } else if ($event.altKey) {
               direction = false;
             }
-            var node = $scope.newSiblingNode(direction);
-            setTimeout(function(){
-              $scope.focusNode($scope.$parentNodesScope, node.$$hashKey);
-            }, 0);
+            if (null != direction) {
+              $scope.newSiblingNode(direction);
+              // var node = $scope.newSiblingNode(direction);
+              // setTimeout(function(){
+              //   $scope.focusNode($scope.$parentNodesScope, node.$$hashKey);
+              // }, 0);
 
-            $event.cancelBubble = true;
+              $event.cancelBubble = true;
+            }
           } else if ($event.ctrlKey && 67 == $event.keyCode) {
             if (0 < $scope.$treeScope.$selecteds.length) {
-              console.log($scope.$treeScope.$selecteds);
+              //console.log($scope.$treeScope.$selecteds);
               $scope.copy();
             }
           } else if ($event.ctrlKey && $event.shiftKey && 86 == $event.keyCode) {
@@ -283,7 +505,9 @@
         };
 
         $scope.remove = function() {
-          return $scope.$parentNodesScope.removeNode($scope.$modelValue);
+          var removedNode = $scope.$parentNodesScope.removeNode($scope.$modelValue);
+          $scope.syncNodesToRemote($scope.$parentNodesScope);
+          return removedNode;
         };
 
         $scope.toggle = function() {
