@@ -3,8 +3,8 @@
 
   angular.module('ui.tree')
 
-    .controller('TreeNodeController', ['$scope', '$element', '$attrs', 'treeConfig', '$uiTreeHelper', 
-      function ($scope, $element, $attrs, treeConfig, $uiTreeHelper) {
+    .controller('TreeNodeController', ['$scope', '$element', '$attrs', 'treeConfig', '$uiTreeHelper', '$firebase',
+      function ($scope, $element, $attrs, treeConfig, $uiTreeHelper, $firebase) {
         this.scope = $scope;
 
         $scope.$element = $element; // xgao: no use.
@@ -35,6 +35,137 @@
           $scope.$modelValue = treeNodesCtrl.scope.$modelValue[$scope.$index];
           $scope.$parentNodesScope = treeNodesCtrl.scope;
           treeNodesCtrl.scope.initSubNode($scope); // init sub nodes
+
+          //console.log($scope.node_key)
+
+          $scope.username = "user1";
+          $scope.app_name = "boogunote";    
+          $scope.base_url = "https://boogu.firebaseio.com/" + $scope.username + "/" + $scope.app_name + "/nodes";
+
+          //You should put an empty node here. The binding will cause error without an empty child array.
+          $scope.node = {
+            content : "",
+            collapsed : false,
+            selected : false,
+            children:[]
+          };
+
+          // console.log("dsdfsdfsdfdsfsdfsd: "+$scope.base_url + "/" + $scope.node_key);
+          // console.log($scope.node_key);
+          var node = $firebase(new Firebase($scope.base_url + "/" + $scope.node_key)).$asObject();
+          node.$loaded().then(function() {
+            node.$bindTo($scope, "node").then(function() {
+
+              $scope.$watch(function() {
+                  return $scope.node.children
+                }, 
+                function(newVal, oldVal) {
+                  if (newVal != oldVal) {
+                  }
+                });
+              node.$watch(function(){
+                //console.log(node)
+              });
+            });
+
+            
+          });
+
+
+          
+
+          // $scope.node.nodes = [];
+          // var temp_list = [];
+          // var node_count = 0;
+          // for (var i = 0; !!$scope.node.children && i < $scope.node.children.length; i++) {
+          //   console.log($scope.base_url + "/nodes/" + $scope.node.children[i])
+          //   var ref = new Firebase($scope.base_url + "/nodes/" + $scope.node.children[i]);
+          //   var node = $firebase(ref).$asObject();
+          //   node.$ref = ref;
+          //   temp_list.push(node);
+          //   node.$loaded().then(function() {
+          //     node_count = node_count + 1;
+          //     if (node_count == $scope.node.children.length) {
+          //       for (var i = 0; i < temp_list.length; i++) {
+          //         temp_list[i].collapsed = false;
+          //         temp_list[i].selected = false;
+          //         $scope.node.nodes.push({
+          //           content : temp_list[i].content,
+          //           collapsed : temp_list[i].collapsed,
+          //           selected : false,
+          //           children : temp_list[i].children,
+          //           $remoteNode : temp_list[i]
+          //         });
+          //       };
+          //     };
+          //   })
+          // };
+
+          //console.log($firebase($scope.node.$ref.child("content")).$asObject().$bindTo($scope.node, "content"));
+
+
+          // //var path= "/content";
+          // var path= "";
+          // var currentScope = $scope;
+          // while(currentScope) {
+          //   var index = currentScope.$parentNodesScope.$modelValue.indexOf(currentScope.node);
+          //   //console.log(index);
+          //   path = index + path;
+          //   currentScope = currentScope.$parentNodeScope;
+          //   if (!currentScope) break;
+          //   path = "/nodes/" + path;
+          // }
+          // // console.log(path)
+          // // console.log($scope.ref)
+
+          // var remoteNode = $firebase($scope.ref.child(path)).$asObject();
+          //console.log($scope.node.$remoteNode)
+          //$scope.node.$remoteNode.$bindTo($scope, "$remoteNode");
+          // //setTimeout(function() {console.log($scope.remoteNode)}, 10000);
+
+          // $scope.$watch(function() {
+          //     return $scope.node.content
+          //   }, 
+          //   function(newVal, oldVal) {
+          //   if (newVal != oldVal) {
+          //     $scope.node.$remoteNode.content = newVal;
+          //     $scope.node.$remoteNode.$save();
+          //   }
+          // });
+
+          // console.log($scope.node.$remoteNode)
+          // $scope.node.$remoteNode.$watch(function(){
+          //   //console.log(remoteNode.content)
+          //   if ($scope.node.content != $scope.node.$remoteNode.content) {
+          //     $scope.node.content = $scope.node.$remoteNode.content;
+          //   }
+          //   if ($scope.node.collapsed != $scope.node.$remoteNode.collapsed) {
+          //     $scope.node.collapsed = $scope.node.$remoteNode.collapsed
+          //   }
+          // })
+
+          // if ($scope.node.nodes) {
+          //   $scope.node.nodes.push({content:"testtest"});
+          // }
+
+          // $scope.$watch(function() {
+          //     return $scope.remoteNode.content;
+          //   }, 
+          //   function(newVal, oldVal) {
+          //   if (newVal != oldVal) {
+          //     $scope.node.content = newVal;
+          //   }
+          // });
+
+          // $scope.$watch(function() {
+          //     return $scope.node.collapsed
+          //   }, 
+          //   function(newVal, oldVal) {
+          //   if (newVal != oldVal) {
+          //     $scope.node.$remoteNode.collapsed = newVal;
+          //     $scope.node.$remoteNode.$save();
+          //   }
+          // });
 
           $element.on('$destroy', function() {
             treeNodesCtrl.scope.destroySubNode($scope); // destroy sub nodes
@@ -154,10 +285,6 @@
         }
 
         $scope.newSiblingNode = function(next) {
-          var node = {
-            content: "",
-            nodes: []
-          };
           var index = $scope.index();
           console.log($scope.$parentNodesScope.$modelValue);
           var position = -1;
@@ -166,8 +293,16 @@
           } else {
             position = index;
           }
-          $scope.$parentNodesScope.$modelValue.splice(position, 0, node);
-          return node;
+          var sync = $firebase(new Firebase($scope.base_url));
+          sync.$push({
+            content : "",
+            collapsed : false,
+          }).then(function(ref) {
+            console.log("ref key(): " + ref.key());   // key for the new ly created record
+            $scope.$parentNodesScope.$modelValue.splice(position, 0, ref.key());
+          }, function(error) {
+            console.log("Error:", error);
+          });;
         };
 
         $scope.deleteSelectNodes = function() {
@@ -194,12 +329,15 @@
             } else if ($event.ctrlKey) {
               direction = false;
             }
-            var node = $scope.newSiblingNode(direction);
-            setTimeout(function(){
-              $scope.focusNode($scope.$parentNodesScope, node.$$hashKey);
-            }, 0);
+            if (null != direction) {
+              $scope.newSiblingNode(direction);
+              // var node = $scope.newSiblingNode(direction);
+              // setTimeout(function(){
+              //   $scope.focusNode($scope.$parentNodesScope, node.$$hashKey);
+              // }, 0);
 
-            $event.cancelBubble = true;
+              $event.cancelBubble = true;
+            }
           } else if ($event.ctrlKey && 67 == $event.keyCode) {
             if (0 < $scope.$treeScope.$selecteds.length) {
               console.log($scope.$treeScope.$selecteds);

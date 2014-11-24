@@ -180,7 +180,6 @@
         $scope.onKeyDown = function(event) {
           $uiTreeHelper.safeApply($scope, function() {
             event.returnValue = false;
-            console.log("adsafdsf")
             if (27 == event.keyCode) {
               $scope.clearSelectedAndClippedState();
               event.returnValue = true;
