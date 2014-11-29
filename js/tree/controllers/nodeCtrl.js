@@ -3,8 +3,8 @@
 
   angular.module('ui.tree')
 
-    .controller('TreeNodeController', ['$scope', '$element', '$attrs', 'treeConfig', '$uiTreeHelper', 
-      function ($scope, $element, $attrs, treeConfig, $uiTreeHelper) {
+    .controller('TreeNodeController', ['$scope', '$element', '$attrs', 'treeConfig', '$uiTreeHelper', '$firebase',
+      function ($scope, $element, $attrs, treeConfig, $uiTreeHelper, $firebase) {
         this.scope = $scope;
 
         $scope.$element = $element; // xgao: no use.
@@ -24,6 +24,20 @@
 
         //$scope.node.selected = false;
 
+        $scope.getNodePath = function() {
+          var path= "";
+          var currentScope = $scope;
+          while(currentScope) {
+            var index = currentScope.$parentNodesScope.$modelValue.indexOf(currentScope.node);
+            //console.log(index);
+            path = index + path;
+            currentScope = currentScope.$parentNodeScope;
+            if (!currentScope) break;
+            path = "/nodes/" + path;
+          }
+          return path;
+        };
+
         $scope.init = function(controllersArr) {
           $scope.$treeNodesCtrl = controllersArr[0];
           var treeNodesCtrl = controllersArr[0];
@@ -35,6 +49,30 @@
           $scope.$modelValue = treeNodesCtrl.scope.$modelValue[$scope.$index];
           $scope.$parentNodesScope = treeNodesCtrl.scope;
           treeNodesCtrl.scope.initSubNode($scope); // init sub nodes
+
+          //console.log($scope.base_url)
+
+          $scope.$watch(function() {
+              return $scope.node.content
+            }, 
+            function(newVal, oldVal) {
+            if (newVal != oldVal) {
+              var url = $scope.base_url + "/nodes/" + $scope.getNodePath();
+              console.log(url)
+              var sync = $firebase(new Firebase(url));
+              sync.$set("content", newVal);
+            }
+          });
+
+          // $scope.node.$remoteNode.$watch(function(){
+          //   //console.log(remoteNode.content)
+          //   if ($scope.node.content != $scope.node.$remoteNode.content) {
+          //     $scope.node.content = $scope.node.$remoteNode.content;
+          //   }
+          //   if ($scope.node.collapsed != $scope.node.$remoteNode.collapsed) {
+          //     $scope.node.collapsed = $scope.node.$remoteNode.collapsed
+          //   }
+          // })
 
           $element.on('$destroy', function() {
             treeNodesCtrl.scope.destroySubNode($scope); // destroy sub nodes
