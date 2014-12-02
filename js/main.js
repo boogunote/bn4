@@ -74,13 +74,13 @@
 
     var modifyLocalChildren_Add = function(local, remote) {
       var list = [];
-      console.log("modifyLocalChildren_Add")
-      console.log(remote)
-      console.log(local)
+      // console.log("modifyLocalChildren_Add")
+      // console.log(remote)
+      // console.log(local)
       for (var i = 0; i < remote.children.length; i++) {
         var found = false;
         for (var j = 0; j < local.children.length; j++) {
-          console.log("local.children[j].key:" +local.children[j].key+ " remote.children[i].key:"+remote.children[i].key)
+          // console.log("local.children[j].key:" +local.children[j].key+ " remote.children[i].key:"+remote.children[i].key)
           if (local.children[j].key == remote.children[i].key) {
             found = true;
             break;
@@ -92,15 +92,15 @@
         else
           modifyLocalChildren_Add(local.children[j], remote.children[i])
       }
-      console.log(list)
+      // console.log(list)
       for (var i = 0; i < list.length; i++) {
         local.children.splice(list[i], 0, remote.children[list[i]]);
       }
     }
 
     var syncRemoteToLocal = function(remote, local, path) {
-      console.log(remote)
-      console.log(local)
+      // console.log(remote)
+      // console.log(local)
       addEmtpyChildrenArray(remote);
       modifyLocalChildren_Remove(local, remote);
       modifyLocalChildren_Add(local, remote);
@@ -123,7 +123,7 @@
     //console.log(tree_url)
     var remoteTree = $firebase(new Firebase($scope.tree_url)).$asObject();
     remoteTree.$loaded().then(function() {
-      console.log("sdfsdfsdf")
+      // console.log("sdfsdfsdf")
       diffTree(remoteTree, $scope.tree, $scope.tree_url+"/children", syncRemoteToLocal);
       //console.log(remoteTree)
       //console.log($scope.tree)

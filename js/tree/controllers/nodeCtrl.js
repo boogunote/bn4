@@ -198,7 +198,7 @@
         };
 
         $scope.toggleSelected = function() {
-          if ($scope.node.selected) {
+          if ($scope.selected) {
             $scope.unselect();
           } else {
             $scope.select();
@@ -206,16 +206,21 @@
         };
 
         $scope.select = function() {
-          if (!$scope.node.selected && $scope.$treeScope.$callbacks.select($scope)) {
+          if (!$scope.selected) {
             $scope.selectNode();
-            $scope.$treeScope.$selecteds.push($scope.node);
+            // console.log("select")
+            // console.log($scope.node)
+            $scope.$treeScope.$selecteds.push($scope);
           }
         };
 
         $scope.unselect = function() {
-          if (!$scope.$parentNodesScope.selected && $scope.node.selected && $scope.$treeScope.$callbacks.unselect($scope)) {
+          // console.log("unselect")
+          // console.log($scope.$parentNodeScope.selected)
+          // console.log($scope.selected)
+          if (!$scope.$parentNodeScope.selected && $scope.selected) {
             $scope.unselectNode();
-            var indexOf = $scope.$treeScope.$selecteds.indexOf($scope.node);
+            var indexOf = $scope.$treeScope.$selecteds.indexOf($scope);
             if (angular.isDefined(indexOf) && indexOf > -1) {
               $scope.$treeScope.$selecteds.splice(indexOf, 1);
             }
@@ -223,20 +228,23 @@
         };
 
         $scope.selectNode = function() {
-          if (!$scope.node.selected && $scope.$treeScope.$callbacks.select($scope)) {
-            $scope.$childNodesScope.selected = true;
+          if (!$scope.selected) {
+            //$scope.$childNodesScope.selected = true;
+            $scope.selected = true;
             $scope.selectSubNode(true);
-            $scope.node.selected = true;
-            $scope.node.$parentNodesScope = $scope.$parentNodesScope;
+            //$scope.node.$parentNodesScope = $scope.$parentNodesScope;
           }
         };
 
         $scope.unselectNode = function() {
-          if (!$scope.$parentNodesScope.selected && $scope.node.selected && $scope.$treeScope.$callbacks.unselect($scope)) {
-            $scope.$childNodesScope.selected = false;
+          // console.log("unselectNode")
+          // console.log($scope.$parentNodeScope.selected)
+          // console.log($scope.selected)
+          if (!$scope.$parentNodeScope.selected && $scope.selected) {
+            //$scope.$childNodesScope.selected = false;
+            $scope.selected = false;
             $scope.selectSubNode(false);
-            $scope.node.selected = false;
-            $scope.node.$parentNodesScope = undefined;
+            //$scope.node.$parentNodesScope = undefined;
           }
         };
 
@@ -252,20 +260,21 @@
           };
         }
 
-        $scope.createContentNode = function(selected_node) {
+        $scope.createContentNode = function(selectedNodeScope) {
           var node = {};
-          node.content = selected_node.content;
-          node.selected = selected_node.selected;
-          node.collapsed = selected_node.collapsed;
+          node.key = selectedNodeScope.node_stub.key
+          node.content = selectedNodeScope.node.content;
+          node.selected = true;
+          node.collapsed = selectedNodeScope.node.collapsed;
           node.nodes = [];
-          for (var i = 0; i < selected_node.nodes.length; i++) {
+          for (var i = 0; i < selectedNodeScope.childNodes().length; i++) {
             node.nodes.push($scope.createContentNode(selected_node.nodes[i]));
           };
           return node;
         }
 
         $scope.copy = function () {
-          console.log($scope.$treeNodesCtrl.scope.$modelValue[0] === $scope.$treeScope.$selecteds[0]);
+          // console.log($scope.$treeNodesCtrl.scope.$modelValue[0] === $scope.$treeScope.$selecteds[0]);
           var selectedNodes = [];
           for (var i = 0; i < $scope.$treeScope.$selecteds.length; i++) {
             selectedNodes.push($scope.createContentNode($scope.$treeScope.$selecteds[i]))
