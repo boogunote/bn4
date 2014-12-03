@@ -38,10 +38,12 @@
             }
           },
 
-          cleanSubNodeStatus: function(node) {
-            for (var i = 0; i < node.nodes.length; i++) {
-              node.nodes[i].selected = false;
-              this.cleanSubNodeStatus(node.nodes[i]);
+          cleanSubNodeStatus: function(nodeScope) {
+            if (!nodeScope) return;
+            nodeScope.selected = false
+            var childNodeScope = nodeScope.childNodes();
+            for (var i = 0; i < childNodeScope.length; i++) {
+              this.cleanSubNodeStatus(childNodeScope[i]);
             };
           },
 

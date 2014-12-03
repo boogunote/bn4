@@ -218,7 +218,7 @@
           // console.log("unselect")
           // console.log($scope.$parentNodeScope.selected)
           // console.log($scope.selected)
-          if (!$scope.$parentNodeScope.selected && $scope.selected) {
+          if (!$scope.$parentNodeScope || !$scope.$parentNodeScope.selected && $scope.selected) {
             $scope.unselectNode();
             var indexOf = $scope.$treeScope.$selecteds.indexOf($scope);
             if (angular.isDefined(indexOf) && indexOf > -1) {
@@ -240,7 +240,7 @@
           // console.log("unselectNode")
           // console.log($scope.$parentNodeScope.selected)
           // console.log($scope.selected)
-          if (!$scope.$parentNodeScope.selected && $scope.selected) {
+          if (!$scope.$parentNodeScope || !$scope.$parentNodeScope.selected && $scope.selected) {
             //$scope.$childNodesScope.selected = false;
             $scope.selected = false;
             $scope.selectSubNode(false);
@@ -260,15 +260,16 @@
           };
         }
 
-        $scope.createContentNode = function(selectedNodeScope) {
+        $scope.createContentNode = function(nodeScope) {
           var node = {};
-          node.key = selectedNodeScope.node_stub.key
-          node.content = selectedNodeScope.node.content;
+          node.key = nodeScope.node_stub.key
+          node.content = nodeScope.node.content;
           node.selected = true;
-          node.collapsed = selectedNodeScope.node.collapsed;
-          node.nodes = [];
-          for (var i = 0; i < selectedNodeScope.childNodes().length; i++) {
-            node.nodes.push($scope.createContentNode(selected_node.nodes[i]));
+          node.collapsed = nodeScope.node.collapsed;
+          node.children = [];
+          var childNodeScope = nodeScope.childNodes()
+          for (var i = 0; i < childNodeScope.length; i++) {
+            node.children.push($scope.createContentNode(childNodeScope[i]));
           };
           return node;
         }
@@ -282,7 +283,35 @@
           delete localStorage.clipboardData;
           localStorage.clipboardData = undefined;
           localStorage.clipboardData = JSON.stringify(selectedNodes);
-          //console.log(JSON.stringify(localStorage.clipboardData));
+          //console.log(JSON.parse(localStorage.clipboardData));
+        }
+
+        $scope.createTree = function(node, isNewKey) {
+          var key = null;
+          if (isNewKey)
+            key = $uiTreeHelper.getUniqueId();
+          else
+            key = node.key;
+          var node_stub = {
+            key : key,
+            children : []
+          };
+
+          if (isNewKey) {
+            var sync = $firebase(new Firebase($scope.base_url + "/nodes"));
+            sync.$set(key, {
+              content : node.content,
+              collapsed : node.collapsed
+            }).then(function(ref) {
+              //console.log("ref key(): " + ref.key());   // key for the new ly created record
+            }, function(error) {
+              console.log("Error:", error);
+            });
+          }
+          for (var i = 0; i < node.children.length; i++) {
+            node_stub.children.push($scope.createTree(node.children[i], isNewKey));
+          }
+          return node_stub;
         }
 
         $scope.paste = function() {
@@ -290,16 +319,32 @@
           if (!clipboardData) return;
 
           var pasteData = JSON.parse(clipboardData);
+          console.log(pasteData)
 
           for (var i = 0; i < $scope.$treeScope.$selecteds.length; i++) {
             $scope.$treeScope.$selecteds[i].selected = false;
             $uiTreeHelper.cleanSubNodeStatus($scope.$treeScope.$selecteds[i]);
           };
 
+          var key_list_should_be_select_again = []
           for (var i = 0, index = $scope.index(); i < pasteData.length; i++) {
-           $scope.$parentNodesScope.insertNode(index+i+1, pasteData[i]);
+            var stub_node = $scope.createTree(pasteData[i], true);
+            $scope.$parentNodesScope.insertNode(index+i+1, stub_node);
+            key_list_should_be_select_again.push(stub_node.key);
           };
-          $scope.$treeScope.$selecteds = pasteData;
+          $scope.syncNodesToRemote($scope.$parentNodesScope)
+
+          setTimeout(function() {
+            var childNodes = $scope.$parentNodesScope.childNodes();
+            for (var i = 0; i < key_list_should_be_select_again.length; i++) {
+              for (var j = 0; j < childNodes.length; j++) {
+                if (key_list_should_be_select_again[i] == childNodes[j].node_stub.key) {
+                  childNodes[j].select();
+                };
+              };
+            };
+          }, 0);
+          //$scope.$treeScope.$selecteds = pasteData;
         }
 
         $scope.syncNodesToRemote = function(nodesScope) {
@@ -347,7 +392,7 @@
           
         }
 
-        $scope.addNewItem = function(nodesScope, position, node) {
+        $scope.addNewItem = function(nodeScope, position, node) {
           var new_key = $uiTreeHelper.getUniqueId();
           var node_stub = {
             key : new_key,
@@ -355,11 +400,11 @@
           }
           //console.log("scope.$modelValue : " + JSON.stringify(scope.$modelValue, null, 2))
           //console.log(scope.$modelValue)
-          nodesScope.$modelValue.splice(position, 0, node_stub);
+          nodeScope.$childNodesScope.$modelValue.splice(position, 0, node_stub);
           //console.log(scope.$modelValue)
-          setTimeout(function(){
-            $scope.focusNode(nodesScope, node_stub.$$hashKey);
-          }, 0);
+          // setTimeout(function(){
+          //   $scope.focusNode(nodesScope, node_stub.$$hashKey);
+          // }, 0);
           var sync = $firebase(new Firebase($scope.base_url + "/nodes"));
           sync.$set(new_key, node).then(function(ref) {
             //console.log("ref key(): " + ref.key());   // key for the new ly created record
@@ -367,7 +412,7 @@
             console.log("Error:", error);
           });
 
-          $scope.syncNodesToRemote(nodesScope);
+          $scope.syncNodesToRemote(nodeScope.$childNodesScope);
         }
 
         $scope.newSubItem = function(scope) {
@@ -378,7 +423,7 @@
           // }
           //console.log("newSubItem: " + JSON.stringify($scope.$childNodesScope.$modelValue, null, 2))
           setTimeout(function(){
-            $scope.addNewItem($scope.$childNodesScope, 0, {
+            $scope.addNewItem($scope, 0, {
               content : "",
               collapsed : false,
             });
@@ -400,7 +445,7 @@
             position = index;
           }
           //console.log($scope.$parentNodesScope);
-          $scope.addNewItem($scope.$parentNodesScope, position, {
+          $scope.addNewItem($scope.$parentNodeScope, position, {
             content : "",
             collapsed : false,
           });

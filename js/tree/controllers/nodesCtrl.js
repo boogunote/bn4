@@ -19,7 +19,6 @@
         $scope.maxDepth = 0;
 
         $scope.expandOnHover = undefined;
-        $scope.selected = false;
 
         $scope.initSubNode = function(subNode) {
           //console.log(subNode);
