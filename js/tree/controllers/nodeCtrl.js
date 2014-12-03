@@ -328,7 +328,7 @@
           //console.log(scope.$nodeScope.node_stub)
           var clone_tree = function(old_tree) {
             var new_tree = {
-              key : old_tree.key,
+              key : !!old_tree.key?old_tree.key:null,
               children : []
             };
             for (var i = 0; !!old_tree.children && i < old_tree.children.length; i++) {
@@ -336,12 +336,18 @@
             }
             return new_tree;
           };
-          var new_tree = clone_tree(nodesScope.$nodeScope.node_stub)
+          var new_tree = null;
+          // Check if at tree root node.
+          if (!!nodesScope.$nodeScope) {
+            sync.$set(clone_tree(nodesScope.$nodeScope.node_stub));
+          } else {
+            sync.$set(clone_tree($scope.$treeScope.$parent.tree));
+          }
           //console.log(new_tree)
-          sync.$set(new_tree);
+          
         }
 
-        $scope.addNewItem = function(nodesScope, position) {
+        $scope.addNewItem = function(nodesScope, position, node) {
           var new_key = $uiTreeHelper.getUniqueId();
           var node_stub = {
             key : new_key,
@@ -355,10 +361,7 @@
             $scope.focusNode(nodesScope, node_stub.$$hashKey);
           }, 0);
           var sync = $firebase(new Firebase($scope.base_url + "/nodes"));
-          sync.$set(new_key, {
-            content : "",
-            collapsed : false,
-          }).then(function(ref) {
+          sync.$set(new_key, node).then(function(ref) {
             //console.log("ref key(): " + ref.key());   // key for the new ly created record
           }, function(error) {
             console.log("Error:", error);
@@ -375,7 +378,10 @@
           // }
           //console.log("newSubItem: " + JSON.stringify($scope.$childNodesScope.$modelValue, null, 2))
           setTimeout(function(){
-            $scope.addNewItem($scope.$childNodesScope, 0);
+            $scope.addNewItem($scope.$childNodesScope, 0, {
+              content : "",
+              collapsed : false,
+            });
           }, 0);
         };
 
@@ -394,7 +400,10 @@
             position = index;
           }
           //console.log($scope.$parentNodesScope);
-          $scope.addNewItem($scope.$parentNodesScope, position);
+          $scope.addNewItem($scope.$parentNodesScope, position, {
+            content : "",
+            collapsed : false,
+          });
         };
 
         $scope.deleteSelectNodes = function() {
