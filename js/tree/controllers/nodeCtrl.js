@@ -392,7 +392,7 @@
           
         }
 
-        $scope.addNewItem = function(nodeScope, position, node) {
+        $scope.addNewItem = function(nodesScope, position, node) {
           var new_key = $uiTreeHelper.getUniqueId();
           var node_stub = {
             key : new_key,
@@ -400,7 +400,7 @@
           }
           //console.log("scope.$modelValue : " + JSON.stringify(scope.$modelValue, null, 2))
           //console.log(scope.$modelValue)
-          nodeScope.$childNodesScope.$modelValue.splice(position, 0, node_stub);
+          nodesScope.$modelValue.splice(position, 0, node_stub);
           //console.log(scope.$modelValue)
           // setTimeout(function(){
           //   $scope.focusNode(nodesScope, node_stub.$$hashKey);
@@ -412,7 +412,7 @@
             console.log("Error:", error);
           });
 
-          $scope.syncNodesToRemote(nodeScope.$childNodesScope);
+          $scope.syncNodesToRemote(nodesScope);
         }
 
         $scope.newSubItem = function(scope) {
@@ -423,7 +423,7 @@
           // }
           //console.log("newSubItem: " + JSON.stringify($scope.$childNodesScope.$modelValue, null, 2))
           setTimeout(function(){
-            $scope.addNewItem($scope, 0, {
+            $scope.addNewItem($scope.$childNodesScope, 0, {
               content : "",
               collapsed : false,
             });
@@ -444,17 +444,34 @@
           } else {
             position = index;
           }
-          //console.log($scope.$parentNodesScope);
-          $scope.addNewItem($scope.$parentNodeScope, position, {
+          console.log($scope);
+          $scope.addNewItem($scope.$parentNodesScope, position, {
             content : "",
             collapsed : false,
           });
         };
 
+        $scope.deleteTreeContent = function(node_stub) {
+          if (!node_stub) return;
+
+          var sync = $firebase(new Firebase($scope.base_url + "/nodes"));
+          sync.$set(node_stub.key, null).then(function(ref) {
+            //console.log("ref key(): " + ref.key());   // key for the new ly created record
+          }, function(error) {
+            console.log("Error:", error);
+          });
+
+          for (var i = 0; !!node_stub.children && i < node_stub.children.length; i++) {
+            $scope.deleteTreeContent(node_stub.children[i]);
+          };
+        }
+
         $scope.deleteSelectNodes = function() {
           for (var i = 0; i < $scope.$treeScope.$selecteds.length; i++) {
-            $scope.$treeScope.$selecteds[i].$parentNodesScope.removeNode($scope.$treeScope.$selecteds[i]);
+            $scope.deleteTreeContent($scope.$treeScope.$selecteds[i].node_stub)
+            $scope.$treeScope.$selecteds[i].$parentNodesScope.removeNode($scope.$treeScope.$selecteds[i].$modelValue);
           };
+          $scope.syncNodesToRemote($scope.$parentNodesScope);
           
         }
 
@@ -557,17 +574,8 @@
                   $scope.$childNodesScope.accept(sourceNode, destIndex);
         };
 
-        $scope.removeNode = function() {
-          if ($scope.$treeScope.$callbacks.remove(node)) {
-            var node = $scope.remove();
-
-            return node;
-          }
-
-          return undefined;
-        };
-
         $scope.remove = function() {
+          $scope.deleteTreeContent($scope.node_stub)
           var removedNode = $scope.$parentNodesScope.removeNode($scope.$modelValue);
           $scope.syncNodesToRemote($scope.$parentNodesScope);
           return removedNode;
