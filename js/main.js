@@ -33,14 +33,22 @@
               changed = true;
               break;
             } else {
-              diffTree(remote.children[i], local.children[i], path+"/children/"+i, applyChange);
+              
             }
           }
         }
       }
 
+      console.log("changed")
+      console.log(changed)
       if (changed) {
         applyChange(remote, local, path);
+      } else {
+        if (!!remote.children && !!local.children) {
+          for (var i = 0; i < remote.children.length; i++) {
+            diffTree(remote.children[i], local.children[i], path+"/children/"+i, applyChange);
+          };
+        }
       }
     }
 
@@ -56,6 +64,9 @@
     }
 
     var modifyLocalChildren_Remove = function(local, remote) {
+      // console.log("modifyLocalChildren_Remove")
+      // console.log(local)
+      // console.log(remote)
       for (var i = 0; i < local.children.length; i++) {
         var found = false;
         for (var j = 0; j < remote.children.length; j++) {
@@ -67,7 +78,12 @@
         if (found) {
           modifyLocalChildren_Remove(local.children[i], remote.children[j]);
         } else {
-          local.children.splice(local.children[i], 1);
+          // console.log("remove node")
+          // console.log(local.children)
+          // console.log(i)
+          local.children.splice(i, 1);
+          i--;
+          // console.log(local.children)
         }
       }
     }
@@ -102,8 +118,16 @@
       // console.log(remote)
       // console.log(local)
       addEmtpyChildrenArray(remote);
+      // console.log("syncRemoteToLocal")
+      // console.log(path)
       modifyLocalChildren_Remove(local, remote);
+      // console.log("aaaaaaaaaaaaaaaaaaa")
+      // console.log(local)
+      // console.log(remote)
       modifyLocalChildren_Add(local, remote);
+      // console.log("bbbbbbbbbbbbbbbbbbb")
+      // console.log(local)
+      // console.log(remote)
       // console.log("syncRemoteToLocal")
       // console.log(remote);
       // console.log(local);
@@ -130,6 +154,7 @@
       remoteTree.$watch(function(){
         // console.log("remote")
         diffTree(remoteTree, $scope.tree, $scope.tree_url+"/children", syncRemoteToLocal);
+        //$scope.tree.children = remoteTree.children
       })
 
       // $scope.$watch(function() {
