@@ -467,6 +467,9 @@
         }
 
         $scope.deleteSelectNodes = function() {
+          if (!$scope.$treeScope.$selecteds || 0 == $scope.$treeScope.$selecteds.length) return;
+          if ($scope.isLastNode()) return;
+
           for (var i = 0; i < $scope.$treeScope.$selecteds.length; i++) {
             $scope.deleteTreeContent($scope.$treeScope.$selecteds[i].node_stub)
             $scope.$treeScope.$selecteds[i].$parentNodesScope.removeNode($scope.$treeScope.$selecteds[i].$modelValue);
@@ -574,7 +577,17 @@
                   $scope.$childNodesScope.accept(sourceNode, destIndex);
         };
 
+        $scope.isLastNode = function() {
+          if ($scope.tree.children.length ==1) {
+            $scope.deleteTreeContent($scope.tree.children[0])
+            return true;
+          } else
+            return false;
+        }
+
         $scope.remove = function() {
+          if ($scope.isLastNode()) return;
+
           $scope.deleteTreeContent($scope.node_stub)
           var removedNode = $scope.$parentNodesScope.removeNode($scope.$modelValue);
           $scope.syncNodesToRemote($scope.$parentNodesScope);

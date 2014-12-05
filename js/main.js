@@ -39,8 +39,6 @@
         }
       }
 
-      console.log("changed")
-      console.log(changed)
       if (changed) {
         applyChange(remote, local, path);
       } else {
@@ -147,7 +145,8 @@
     //console.log(tree_url)
     var remoteTree = $firebase(new Firebase($scope.tree_url)).$asObject();
     remoteTree.$loaded().then(function() {
-      // console.log("sdfsdfsdf")
+      // console.log($scope.tree_url)
+      // console.log(remoteTree)
       diffTree(remoteTree, $scope.tree, $scope.tree_url+"/children", syncRemoteToLocal);
       //console.log(remoteTree)
       //console.log($scope.tree)
