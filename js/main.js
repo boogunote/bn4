@@ -2,7 +2,10 @@
   'use strict';
 
   angular.module('treesApp', ['ui.tree', 'firebase'])
-  .controller('treesCtrl', function($scope, $firebase) {
+  .controller('treesCtrl', function($scope, $firebase, $location) {
+    $scope.noteId = $location.path().substring(1);
+    if (!$scope.noteId) return;
+
     localStorage.removeItem("clipboardData");
 
     var diffTree = function(remote, local, path, applyChange) {
@@ -143,7 +146,6 @@
       //console.log(tree_url)
       $scope.username = authData.uid;
       $scope.app_name = "boogunote";    
-      $scope.noteId = "note1";
       $scope.base_url = "https://boogu.firebaseio.com/" + $scope.username + "/" + $scope.app_name + "/notes/" +$scope.noteId;
       $scope.tree_url = $scope.base_url + "/tree";
       var remoteTree = $firebase(new Firebase($scope.tree_url)).$asObject();
