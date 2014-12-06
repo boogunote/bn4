@@ -578,8 +578,10 @@
         };
 
         $scope.isLastNode = function() {
-          if ($scope.tree.children.length ==1) {
+          if ($scope.tree.children.length ==1 && $scope.node_stub.key == $scope.tree.children[0].key) {
             $scope.deleteTreeContent($scope.tree.children[0])
+            $scope.tree.children[0].children = [];
+            $scope.syncNodesToRemote($scope.$childNodesScope);
             return true;
           } else
             return false;
