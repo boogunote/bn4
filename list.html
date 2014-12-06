@@ -12,7 +12,7 @@
 <body ng-app="noteListApp">
   <div ng-controller="noteListCtrl">
     <li ng-repeat="note_file in note_list.list">
-      <a ng-href="index.html#{{note_file.id}}">{{note_file.id}}</a>
+      <a ng-href="index.html#{{note_file.id}}" ng-controller="noteItemCtrl"><div>{{info.name}}</div></a>
     </li>
   </div>
   <script type="text/javascript" src="lib/angular/angular.min.js"></script>
