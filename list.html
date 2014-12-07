@@ -11,10 +11,30 @@
 </head>
 <body ng-app="noteListApp">
   <div ng-controller="noteListCtrl">
+    <div ng-model="active" ng-init="active=true">
     <button ng-click="this.createNewNote()">Create New Note</button>
     <li ng-repeat="note_file in note_list.list">
-      <div ng-controller="noteItemCtrl"><a ng-href="index.html#{{note_file.id}}">{{info.name}}</a><button ng-click="this.rename()">Rename</button><button ng-click="this.remove()">Remove</button></div>
+      <div ng-controller="noteItemCtrl">
+        <a ng-href="index.html#{{note_file.id}}">{{info.name}}</a>
+        <button ng-click="this.rename()">Rename</button>
+        <button ng-click="this.remove()">Remove</button>
+        <button ng-click="this.toggleActive()">Move to Inactivate List</button>
+      </div>
     </li>
+  </div>
+  </div>
+  <div ng-controller="noteListCtrl" ng-model="active" ng-init="active=false">
+    <button ng-click="this.showInactiveList()">Show Inactive List</button>
+    <div ng-class="{hidden: !inactiveShown}">
+      <li ng-repeat="note_file in note_list.list">
+        <div ng-controller="noteItemCtrl">
+          <a ng-href="index.html#{{note_file.id}}">{{info.name}}</a>
+          <button ng-click="this.rename()">Rename</button>
+          <button ng-click="this.remove()">Remove</button>
+          <button ng-click="this.toggleActive()">Move to Activate List</button>
+        </div>
+      </li>
+    </div>
   </div>
   <script type="text/javascript" src="lib/angular/angular.min.js"></script>
   <script type="text/javascript" src="lib/firebase/firebase.js"></script>

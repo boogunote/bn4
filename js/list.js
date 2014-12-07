@@ -41,32 +41,61 @@
         console.log("Error:", error);
       });
 
+      if (!$scope.note_list.list) {
+        $scope.note_list.list = [];
+      };
+
       $scope.note_list.list.unshift({
         "create_time" : new Date().getTime(),
         "id" : note_id
       })
     };
 
-    var authData = ref.getAuth();
-    if (authData) {
-      // user authenticated with Firebase
-      console.log(authData);
-      //console.log(tree_url)
-      $scope.username = authData.uid;
-      $scope.app_name = "boogunote";    
-      $scope.noteId = "note1";
-      $scope.base_url = "https://boogu.firebaseio.com/" + $scope.username + "/" + $scope.app_name;
-      $scope.list_url = $scope.base_url + "/note_list";
-      var noteList = $firebase(new Firebase($scope.list_url)).$asObject();
-      noteList.$loaded().then(function() {
-      	console.log(noteList)
-      	//$scope.note_list = noteList;
-      	noteList.$bindTo($scope, "note_list").then(function() {
-      	});
-      });
-    } else {
-      window.location.replace("login.html")
+    $scope.inactiveShown = false;
+
+    $scope.showInactiveList = function() {
+      if (!$scope.inactiveShown) {
+        $scope.inactiveShown = true;
+        $scope.loadData();
+      } else {
+        $scope.inactiveShown = false;
+        //$scope.noteListUnbind();
+        //$scope.note_list.list = [];
+      }
     }
+
+    $scope.loadData = function() {
+      var authData = ref.getAuth();
+      if (authData) {
+        // user authenticated with Firebase
+        console.log(authData);
+        //console.log(tree_url)
+        $scope.username = authData.uid;
+        $scope.app_name = "boogunote";    
+        $scope.noteId = "note1";
+        $scope.base_url = "https://boogu.firebaseio.com/" + $scope.username + "/" + $scope.app_name;
+        $scope.list_url = $scope.base_url + "/note_list";
+        if ($scope.active) {
+          $scope.list_url = $scope.list_url + "/active";
+        } else {
+          $scope.list_url = $scope.list_url + "/inactive";
+        }
+        var noteList = $firebase(new Firebase($scope.list_url)).$asObject();
+        noteList.$loaded().then(function() {
+        	console.log(noteList)
+        	//$scope.note_list = noteList;
+        	$scope.noteListUnbind = noteList.$bindTo($scope, "note_list").then(function() {
+        	});
+        });
+      } else {
+        window.location.replace("login.html")
+      }
+    };
+    setTimeout(function() {
+      if ($scope.active) {
+        $scope.loadData();
+      };
+    },0);
   })
   .controller('noteItemCtrl', function($scope, $firebase) {
   	if(!$scope.note_file) return;
@@ -86,6 +115,41 @@
           break;
         }
       };
+      $firebase(new Firebase($scope.base_url + "/notes")).$remove($scope.note_file.id)
+    }
+
+    $scope.toggleActive = function() {
+      if (!confirm("Deprecate Note: " + $scope.info.name)) return;
+
+      var note = null;
+      for (var i = 0; i < $scope.note_list.list.length; i++) {
+        if ($scope.note_list.list[i].id == $scope.note_file.id) {
+          note = $scope.note_list.list.splice(i, 1)[0];
+          break;
+        }
+      };
+      
+      var targetListUrl = null;
+      if ($scope.active) {
+        var targetListUrl = $scope.base_url + "/note_list/inactive";
+      } else {
+        var targetListUrl = $scope.base_url + "/note_list/active";
+      }
+      var sync = $firebase(new Firebase(targetListUrl));
+      var noteList = sync.$asObject();
+      noteList.$loaded().then(function() {
+        console.log(noteList)
+        if (!noteList.list) {
+          noteList.list = [];
+        };
+
+        noteList.list.unshift({
+          "create_time" : note.create_time,
+          "id" : note.id
+        });
+
+        sync.$set("list", noteList.list)
+      });
     }
 
   	var ref = new Firebase("https://boogu.firebaseio.com");
