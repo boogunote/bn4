@@ -4,7 +4,9 @@
   angular.module('treesApp', ['ui.tree', 'firebase'])
   .controller('treesCtrl', function($scope, $firebase, $location) {
     $scope.noteId = $location.path().substring(1);
-    if (!$scope.noteId) return;
+    if (!$scope.noteId) {
+      window.location.replace("login.html");
+    }
 
     localStorage.removeItem("clipboardData");
 
