@@ -1,9 +1,52 @@
 (function() {
   'use strict';
   //console.log("sdsdf")
+  var getUniqueId = function() {
+    return Math.random().toString(36).substring(2)+"-"+new Date().getTime().toString()
+  };
   angular.module('noteListApp', ['firebase'])
   .controller('noteListCtrl', function($scope, $firebase) {
   	var ref = new Firebase("https://boogu.firebaseio.com");
+
+    $scope.createNewNote = function() {
+      var note_name = prompt("Please enter the name for new note", "");
+      if (null == note_name) return;
+
+      var note_id = getUniqueId();
+      var first_node_id = getUniqueId();
+      var sync = $firebase(new Firebase($scope.base_url + "/notes"));
+      var new_note_tree = 
+        {
+          "info" : {
+            "name" : note_name
+          },
+          "nodes" : {
+          },
+          "tree" : {
+            "children" : [ {
+              "children" : [],
+            } ]
+          }
+        };
+      new_note_tree.nodes[first_node_id] = 
+        {
+          "collapsed" : false,
+          "content" : ""
+        };
+      new_note_tree.tree.children[0].key = first_node_id
+      console.log(new_note_tree)
+      sync.$set(note_id, new_note_tree).then(function(ref) {
+        //console.log("ref key(): " + ref.key());   // key for the new ly created record
+      }, function(error) {
+        console.log("Error:", error);
+      });
+
+      $scope.note_list.list.unshift({
+        "create_time" : new Date().getTime(),
+        "id" : note_id
+      })
+    };
+
     var authData = ref.getAuth();
     if (authData) {
       // user authenticated with Firebase
@@ -27,6 +70,23 @@
   })
   .controller('noteItemCtrl', function($scope, $firebase) {
   	if(!$scope.note_file) return;
+
+    $scope.rename = function() {
+      var name = prompt("Please enter the new name", $scope.info.name);
+      if (!name) return;
+      $scope.info.name = name;
+    }
+
+    $scope.remove = function() {
+      if (!confirm("Delete Note: " + $scope.info.name)) return;
+
+      for (var i = 0; i < $scope.note_list.list.length; i++) {
+        if ($scope.note_list.list[i].id == $scope.note_file.id) {
+          $scope.note_list.list.splice(i, 1);
+          break;
+        }
+      };
+    }
 
   	var ref = new Firebase("https://boogu.firebaseio.com");
     var authData = ref.getAuth();

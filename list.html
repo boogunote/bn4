@@ -11,8 +11,9 @@
 </head>
 <body ng-app="noteListApp">
   <div ng-controller="noteListCtrl">
+    <button ng-click="this.createNewNote()">Create New Note</button>
     <li ng-repeat="note_file in note_list.list">
-      <a ng-href="index.html#{{note_file.id}}" ng-controller="noteItemCtrl"><div>{{info.name}}</div></a>
+      <div ng-controller="noteItemCtrl"><a ng-href="index.html#{{note_file.id}}">{{info.name}}</a><button ng-click="this.rename()">Rename</button><button ng-click="this.remove()">Remove</button></div>
     </li>
   </div>
   <script type="text/javascript" src="lib/angular/angular.min.js"></script>
