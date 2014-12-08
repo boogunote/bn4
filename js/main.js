@@ -140,7 +140,7 @@
       "children" : []
     };
 
-    var ref = new Firebase("https://boogu.firebaseio.com");
+    var ref = new Firebase(window.firebase_url);
     var authData = ref.getAuth();
     if (authData) {
       // user authenticated with Firebase
@@ -148,7 +148,7 @@
       //console.log(tree_url)
       $scope.username = authData.uid;
       $scope.app_name = "boogunote";    
-      $scope.base_url = "https://boogu.firebaseio.com/" + $scope.username + "/" + $scope.app_name + "/notes/" +$scope.noteId;
+      $scope.base_url = window.firebase_url + "/" + $scope.username + "/" + $scope.app_name + "/notes/" +$scope.noteId;
       $scope.tree_url = $scope.base_url + "/tree";
       var remoteTree = $firebase(new Firebase($scope.tree_url)).$asObject();
       remoteTree.$loaded().then(function() {

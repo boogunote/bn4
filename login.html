@@ -128,9 +128,10 @@
 </div>
 <script type="text/javascript" src="lib/jquery/jquery-1.11.1.min.js"></script>
 <script type="text/javascript" src="lib/firebase/firebase.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
 <script type="text/javascript">
 var login = function () {
-    var ref = new Firebase("https://boogu.firebaseio.com");
+    var ref = new Firebase(window.firebase_url);
     ref.authWithPassword({
       email    : $("#login-username").val(),
       password : $("#login-password").val()

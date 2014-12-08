@@ -6,7 +6,7 @@
   };
   angular.module('noteListApp', ['firebase'])
   .controller('noteListCtrl', function($scope, $firebase) {
-  	var ref = new Firebase("https://boogu.firebaseio.com");
+  	var ref = new Firebase(window.firebase_url);
 
     $scope.createNewNote = function() {
       var note_name = prompt("Please enter the name for new note", "");
@@ -68,12 +68,12 @@
       var authData = ref.getAuth();
       if (authData) {
         // user authenticated with Firebase
-        console.log(authData);
+        
         //console.log(tree_url)
         $scope.username = authData.uid;
         $scope.app_name = "boogunote";    
         $scope.noteId = "note1";
-        $scope.base_url = "https://boogu.firebaseio.com/" + $scope.username + "/" + $scope.app_name;
+        $scope.base_url = window.firebase_url + "/" + $scope.username + "/" + $scope.app_name;
         $scope.list_url = $scope.base_url + "/note_list";
         if ($scope.active) {
           $scope.list_url = $scope.list_url + "/active";
@@ -152,8 +152,9 @@
       });
     }
 
-  	var ref = new Firebase("https://boogu.firebaseio.com");
+  	var ref = new Firebase(window.firebase_url);
     var authData = ref.getAuth();
+    console.log(authData)
     if (authData) {
       $scope.aaa = $scope.note_file.id
   	  $scope.username = authData.uid;
