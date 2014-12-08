@@ -510,6 +510,12 @@
               //console.log($scope.$treeScope.$selecteds);
               $scope.copy();
             }
+          } else if ($event.ctrlKey && 88 == $event.keyCode) {
+            if (0 < $scope.$treeScope.$selecteds.length) {
+              //console.log($scope.$treeScope.$selecteds);
+              $scope.copy();
+              $scope.remove();
+            }
           } else if ($event.ctrlKey && $event.shiftKey && 86 == $event.keyCode) {
             $scope.paste();
             $event.cancelBubble = true;
