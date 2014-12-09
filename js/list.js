@@ -160,7 +160,7 @@
   	  $scope.username = authData.uid;
       $scope.app_name = "boogunote";    
       $scope.noteId = "note1";
-      $scope.base_url = "https://boogu.firebaseio.com/" + $scope.username + "/" + $scope.app_name;
+      $scope.base_url = window.firebase_url + "/" + $scope.username + "/" + $scope.app_name;
       $scope.note_item_info_url = $scope.base_url + "/notes/" + $scope.note_file.id + "/info";
       console.log($scope.note_item_info_url)
       var note_item_info = $firebase(new Firebase($scope.note_item_info_url)).$asObject();
