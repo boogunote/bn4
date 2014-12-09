@@ -478,8 +478,25 @@
           
         }
 
+        $scope.getNodeScopeByKey = function (scope, key) {
+          var childNodeScope = !!scope.$childNodesScope?scope.$childNodesScope:scope.$nodesScope;
+          var childScopeList = childNodeScope.childNodes()
+          console.log(childScopeList)
+          for (var i = 0; i < childScopeList.length; i++) {
+            console.log(childScopeList[i].node_stub.key +" | "+ key)
+            if (childScopeList[i].node_stub.key == key)
+              return childScopeList[i];
+            else {
+              var targetScope = $scope.getNodeScopeByKey(childScopeList[i], key);
+              if (!!targetScope) return targetScope;
+            }
+          }
+
+          return null;
+        }
+
         $scope.onKeyDown = function(scope, $event) {
-          //console.log($event.keyCode);
+          console.log($event.keyCode);
           $event.returnValue = false;
           if ($event.shiftKey && 13 == $event.keyCode) {
             var node = scope.newSubItem(scope);
@@ -516,6 +533,11 @@
               $scope.copy();
               $scope.remove();
             }
+          } else if ($event.ctrlKey && 90 == $event.keyCode) {
+            //console.log($scope.getNodeScopeByKey)
+            var targetScope = $scope.getNodeScopeByKey($scope.$treeScope, $scope.node_stub.key)
+            console.log("targetScope")
+            console.log(targetScope)
           } else if ($event.ctrlKey && $event.shiftKey && 86 == $event.keyCode) {
             $scope.paste();
             $event.cancelBubble = true;

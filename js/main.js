@@ -146,6 +146,8 @@
       // user authenticated with Firebase
       console.log(authData);
       //console.log(tree_url)
+      $scope.commandList = []
+      $scope.commandList.pos = -1;
       $scope.username = authData.uid;
       $scope.app_name = "boogunote";    
       $scope.base_url = window.firebase_url + "/" + $scope.username + "/" + $scope.app_name + "/notes/" +$scope.noteId;
