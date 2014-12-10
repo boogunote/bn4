@@ -29,7 +29,7 @@
             treeNodeCtrl.scope.$childNodesScope = scope;
             scope.$nodeScope = treeNodeCtrl.scope;
           } else { // find the root nodes if there is no parent node and have a parent ui-tree
-            treeCtrl.scope.$nodesScope = scope;
+            treeCtrl.scope.$childNodesScope = scope;
           }
           scope.$treeScope = treeCtrl.scope;
 

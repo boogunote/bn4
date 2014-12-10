@@ -8,12 +8,14 @@
 
         $scope.$element = $element;
         $scope.$treeElement = $element;
-        $scope.$nodesScope = undefined; // root nodes
+        $scope.$childNodesScope = undefined; // root nodes
         $scope.$type = 'uiTree';
         $scope.$emptyElm = undefined;
         $scope.$callbacks = undefined;
 
-        $scope.$selecteds = [];
+        $scope.$selectedNodeScope = [];
+        $scope.$operationRecordList = [];
+        $scope.$operationRecordList.cursor = -1;
 
         $scope.dragEnabled = (angular.isUndefined($scope.dragEnabled)) ? true : $scope.dragEnabled;
         $scope.emptyPlaceholderEnabled = (angular.isUndefined($scope.emptyPlaceholderEnabled)) ? false : $scope.emptyPlaceholderEnabled;
@@ -48,8 +50,8 @@
           });
         }, true);
 
-        $scope.$watch('$nodesScope.$modelValue.length', function() {
-          if ($scope.$nodesScope.$modelValue) {
+        $scope.$watch('$childNodesScope.$modelValue.length', function() {
+          if ($scope.$childNodesScope.$modelValue) {
             $scope.resetEmptyElement();
           }
         }, true);
@@ -128,17 +130,17 @@
 
         // Check if it's a empty tree
         $scope.isEmpty = function() {
-          return ($scope.$nodesScope && $scope.$nodesScope.$modelValue && $scope.$nodesScope.$modelValue.length === 0);
+          return ($scope.$childNodesScope && $scope.$childNodesScope.$modelValue && $scope.$childNodesScope.$modelValue.length === 0);
         };
 
         // add placeholder to empty tree
         $scope.place = function(placeElm) {
-          $scope.$nodesScope.$element.append(placeElm);
+          $scope.$childNodesScope.$element.append(placeElm);
           $scope.$emptyElm.remove();
         };
 
         $scope.resetEmptyElement = function() {
-          if ($scope.$nodesScope.$modelValue.length === 0 && $scope.emptyPlaceholderEnabled) {
+          if ($scope.$childNodesScope.$modelValue.length === 0 && $scope.emptyPlaceholderEnabled) {
             $element.append($scope.$emptyElm);
           } else {
             $scope.$emptyElm.remove();
@@ -158,23 +160,23 @@
         };
 
         $scope.collapseAll = function() {
-          collapseOrExpand($scope.$nodesScope, true);
+          collapseOrExpand($scope.$childNodesScope, true);
         };
         $scope.$on('collapseAll', $scope.collapseAll);
 
         $scope.expandAll = function() {
-          collapseOrExpand($scope.$nodesScope, false);
+          collapseOrExpand($scope.$childNodesScope, false);
         };
         $scope.$on('expandAll', $scope.expandAll);
 
 
         $scope.clearSelectedAndClippedState = function() {
-          for (var i = 0; i < $scope.$selecteds.length; i++) {
-            $scope.$selecteds[i].selected = false;
-            $scope.$selecteds[i].$parentNodesScope = undefined;
-            $uiTreeHelper.cleanSubNodeStatus($scope.$selecteds[i]);
+          for (var i = 0; i < $scope.$selectedNodeScope.length; i++) {
+            $scope.$selectedNodeScope[i].selected = false;
+            $scope.$selectedNodeScope[i].$parentNodesScope = undefined;
+            $uiTreeHelper.cleanSubNodeStatus($scope.$selectedNodeScope[i]);
           };
-          $scope.$selecteds = [];
+          $scope.$selectedNodeScope = [];
         }
 
         $scope.onKeyDown = function(event) {

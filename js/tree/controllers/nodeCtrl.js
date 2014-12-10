@@ -210,7 +210,7 @@
             $scope.selectNode();
             // console.log("select")
             // console.log($scope.node)
-            $scope.$treeScope.$selecteds.push($scope);
+            $scope.$treeScope.$selectedNodeScope.push($scope);
           }
         };
 
@@ -220,9 +220,9 @@
           // console.log($scope.selected)
           if (!$scope.$parentNodeScope || !$scope.$parentNodeScope.selected && $scope.selected) {
             $scope.unselectNode();
-            var indexOf = $scope.$treeScope.$selecteds.indexOf($scope);
+            var indexOf = $scope.$treeScope.$selectedNodeScope.indexOf($scope);
             if (angular.isDefined(indexOf) && indexOf > -1) {
-              $scope.$treeScope.$selecteds.splice(indexOf, 1);
+              $scope.$treeScope.$selectedNodeScope.splice(indexOf, 1);
             }
           }
         };
@@ -262,7 +262,8 @@
 
         $scope.createContentNode = function(nodeScope) {
           var node = {};
-          node.key = nodeScope.node_stub.key
+          //node.parent_key = nodeScope.$parentNodeScope?nodeScope.$parentNodeScope.node_stub.key:null;
+          node.key = nodeScope.node_stub.key;
           node.content = nodeScope.node.content;
           node.selected = true;
           node.collapsed = nodeScope.node.collapsed;
@@ -275,10 +276,10 @@
         }
 
         $scope.copy = function () {
-          // console.log($scope.$treeNodesCtrl.scope.$modelValue[0] === $scope.$treeScope.$selecteds[0]);
+          // console.log($scope.$treeNodesCtrl.scope.$modelValue[0] === $scope.$treeScope.$selectedNodeScope[0]);
           var selectedNodes = [];
-          for (var i = 0; i < $scope.$treeScope.$selecteds.length; i++) {
-            selectedNodes.push($scope.createContentNode($scope.$treeScope.$selecteds[i]))
+          for (var i = 0; i < $scope.$treeScope.$selectedNodeScope.length; i++) {
+            selectedNodes.push($scope.createContentNode($scope.$treeScope.$selectedNodeScope[i]))
           };
           delete localStorage.clipboardData;
           localStorage.clipboardData = undefined;
@@ -286,30 +287,24 @@
           //console.log(JSON.parse(localStorage.clipboardData));
         }
 
-        $scope.createTree = function(node, isNewKey) {
-          var key = null;
-          if (isNewKey)
-            key = $uiTreeHelper.getUniqueId();
-          else
-            key = node.key;
+        $scope.createTreeAndRemoteNode = function(node) {
+          var key = $uiTreeHelper.getUniqueId();
           var node_stub = {
             key : key,
             children : []
           };
 
-          if (isNewKey) {
-            var sync = $firebase(new Firebase($scope.base_url + "/nodes"));
-            sync.$set(key, {
-              content : node.content,
-              collapsed : node.collapsed
-            }).then(function(ref) {
-              //console.log("ref key(): " + ref.key());   // key for the new ly created record
-            }, function(error) {
-              console.log("Error:", error);
-            });
-          }
+          var sync = $firebase(new Firebase($scope.base_url + "/nodes"));
+          sync.$set(key, {
+            content : node.content,
+            collapsed : node.collapsed
+          }).then(function(ref) {
+            //console.log("ref key(): " + ref.key());   // key for the new ly created record
+          }, function(error) {
+            console.log("Error:", error);
+          });
           for (var i = 0; i < node.children.length; i++) {
-            node_stub.children.push($scope.createTree(node.children[i], isNewKey));
+            node_stub.children.push($scope.createTreeAndRemoteNode(node.children[i]));
           }
           return node_stub;
         }
@@ -321,17 +316,40 @@
           var pasteData = JSON.parse(clipboardData);
           console.log(pasteData)
 
-          for (var i = 0; i < $scope.$treeScope.$selecteds.length; i++) {
-            $scope.$treeScope.$selecteds[i].selected = false;
-            $uiTreeHelper.cleanSubNodeStatus($scope.$treeScope.$selecteds[i]);
+          for (var i = 0; i < $scope.$treeScope.$selectedNodeScope.length; i++) {
+            $scope.$treeScope.$selectedNodeScope[i].selected = false;
+            $uiTreeHelper.cleanSubNodeStatus($scope.$treeScope.$selectedNodeScope[i]);
           };
-
+          var operationRecord = {};
+          operationRecord.operation = "insert";
+          operationRecord.nodeList = [];
           var key_list_should_be_select_again = []
           for (var i = 0, index = $scope.index(); i < pasteData.length; i++) {
-            var stub_node = $scope.createTree(pasteData[i], true);
-            $scope.$parentNodesScope.insertNode(index+i+1, stub_node);
+            var stub_node = $scope.createTreeAndRemoteNode(pasteData[i]);
+            var position = index+i+1
+            $scope.$parentNodesScope.insertNode(position, stub_node);
             key_list_should_be_select_again.push(stub_node.key);
+            // pasteData[i].parent_key = !!$scope.$parentNodeScope?$scope.$parentNodeScope.node_stub.key:null;
+            // pasteData[i].position = position;
+            var positionArray = $scope.createPositionArray($scope);
+            positionArray.push(position);
+            deleteNode.position_array = positionArray;
+            var copyKey = function(target, source) {
+              target.key = source.key;
+              for (var i = target.children.length - 1; i >= 0; i--) {
+                copyKey(target.children[i], source.children[i]);
+              }
+            }
+            copyKey(pasteData[i], stub_node); //Notice here should be the new key!!!!
+            //pasteData[i].key = stub_node.key; //Notice here should be the new key!!!!
+            operationRecord.nodeList.push(pasteData[i])
           };
+
+          $scope.$treeScope.$operationRecordList.splice($scope.$treeScope.$operationRecordList.cursor+1);
+          $scope.$treeScope.$operationRecordList.push(operationRecord);
+          $scope.$treeScope.$operationRecordList.cursor++;
+          console.log("operationRecordList");
+          console.log($scope.$treeScope.$operationRecordList)
           $scope.syncNodesToRemote($scope.$parentNodesScope)
 
           setTimeout(function() {
@@ -344,7 +362,7 @@
               };
             };
           }, 0);
-          //$scope.$treeScope.$selecteds = pasteData;
+          //$scope.$treeScope.$selectedNodeScope = pasteData;
         }
 
         $scope.syncNodesToRemote = function(nodesScope) {
@@ -412,6 +430,24 @@
             console.log("Error:", error);
           });
 
+          var positionArray = $scope.createPositionArray(nodesScope.$nodeScope);
+          positionArray.push(position);
+          var operationRecord = {};
+          operationRecord.operation = "insert";
+          operationRecord.nodeList = [{
+            position_array : positionArray,
+            key : new_key,
+            selected : true,
+            content: "",
+            collapsed : false,
+            children : []
+          }];
+
+          $scope.$treeScope.$operationRecordList.splice($scope.$treeScope.$operationRecordList.cursor+1);
+          console.log($scope.$treeScope.$operationRecordList)
+          $scope.$treeScope.$operationRecordList.push(operationRecord);
+          $scope.$treeScope.$operationRecordList.cursor++;
+
           $scope.syncNodesToRemote(nodesScope);
         }
 
@@ -466,21 +502,34 @@
           };
         }
 
-        $scope.deleteSelectNodes = function() {
-          if (!$scope.$treeScope.$selecteds || 0 == $scope.$treeScope.$selecteds.length) return;
+        $scope.deleteNodeList = function(nodeScopeList) {
+          console.log(nodeScopeList)
           if ($scope.isLastNode()) return;
 
-          for (var i = 0; i < $scope.$treeScope.$selecteds.length; i++) {
-            $scope.deleteTreeContent($scope.$treeScope.$selecteds[i].node_stub)
-            $scope.$treeScope.$selecteds[i].$parentNodesScope.removeNode($scope.$treeScope.$selecteds[i].$modelValue);
-          };
+          var operationRecord = {};
+          operationRecord.operation = "delete";
+          operationRecord.nodeList = [];
+
+          for (var i = 0; i < nodeScopeList.length; i++) {
+            //var position = nodeScopeList[i].$parentNodesScope.$modelValue.indexOf(nodeScopeList[i].$modelValue);
+            $scope.deleteTreeContent(nodeScopeList[i].node_stub)
+            nodeScopeList[i].$parentNodesScope.removeNode(nodeScopeList[i].$modelValue);
+            var deleteNode = $scope.createContentNode(nodeScopeList[i]);
+
+            var positionArray = $scope.createPositionArray(nodeScopeList[i]);
+            deleteNode.position_array = positionArray;
+            // deleteNode.position = position;
+            operationRecord.nodeList.push(deleteNode);
+          }
+          $scope.$treeScope.$operationRecordList.splice($scope.$treeScope.$operationRecordList.cursor+1); // Remove the records right to the cursor
+          $scope.$treeScope.$operationRecordList.push(operationRecord);
+          $scope.$treeScope.$operationRecordList.cursor++;
+          console.log($scope.$treeScope.$operationRecordList)
           $scope.syncNodesToRemote($scope.$parentNodesScope);
-          
         }
 
         $scope.getNodeScopeByKey = function (scope, key) {
-          var childNodeScope = !!scope.$childNodesScope?scope.$childNodesScope:scope.$nodesScope;
-          var childScopeList = childNodeScope.childNodes()
+          var childScopeList = scope.$childNodesScope.childNodes()
           console.log(childScopeList)
           for (var i = 0; i < childScopeList.length; i++) {
             console.log(childScopeList[i].node_stub.key +" | "+ key)
@@ -495,8 +544,31 @@
           return null;
         }
 
+        $scope.createPositionArray = function(scope) {
+          var positionArray = [];
+          var currentScope = scope;
+          while(currentScope) {
+            var index = currentScope.$parentNodesScope.$modelValue.indexOf(currentScope.$modelValue);
+            positionArray.unshift(index)
+            currentScope = currentScope.$parentNodeScope;
+          }
+          return positionArray;
+        }
+
+        $scope.getParentChildrenScopeByPositionArray = function(positionArray) {
+          console.log(positionArray)
+          if (1 == positionArray.length) return $scope.$treeScope.$childNodesScope; // level 1
+
+          var currentChildrenScope = $scope.$treeScope.$childNodesScope;
+          for (var i = 0; i < positionArray.length-1; i++) {
+            currentChildrenScope = currentChildrenScope.childNodes()[positionArray[i]].$childNodesScope;
+          }
+
+          return currentChildrenScope;
+        }
+
         $scope.onKeyDown = function(scope, $event) {
-          console.log($event.keyCode);
+          //console.log($event.keyCode);
           $event.returnValue = false;
           if ($event.shiftKey && 13 == $event.keyCode) {
             var node = scope.newSubItem(scope);
@@ -523,26 +595,122 @@
               $event.cancelBubble = true;
             }
           } else if ($event.ctrlKey && 67 == $event.keyCode) {
-            if (0 < $scope.$treeScope.$selecteds.length) {
-              //console.log($scope.$treeScope.$selecteds);
+            if (0 < $scope.$treeScope.$selectedNodeScope.length) {
+              //console.log($scope.$treeScope.$selectedNodeScope);
               $scope.copy();
             }
           } else if ($event.ctrlKey && 88 == $event.keyCode) {
-            if (0 < $scope.$treeScope.$selecteds.length) {
-              //console.log($scope.$treeScope.$selecteds);
+            if (0 < $scope.$treeScope.$selectedNodeScope.length) {
+              //console.log($scope.$treeScope.$selectedNodeScope);
               $scope.copy();
-              $scope.remove();
+              if (!!$scope.$treeScope.$selectedNodeScope || 0 < $scope.$treeScope.$selectedNodeScope.length) {
+                $scope.deleteNodeList($scope.$treeScope.$selectedNodeScope);
+                $scope.$treeScope.$selectedNodeScope = [];
+              }
             }
           } else if ($event.ctrlKey && 90 == $event.keyCode) {
-            //console.log($scope.getNodeScopeByKey)
-            var targetScope = $scope.getNodeScopeByKey($scope.$treeScope, $scope.node_stub.key)
-            console.log("targetScope")
-            console.log(targetScope)
+            console.log($scope.$treeScope.$operationRecordList.cursor)
+            if ($scope.$treeScope.$operationRecordList.cursor >= 0) {
+              var copyContent = function (node) {
+                node.content = $scope.getNodeScopeByKey($scope.$treeScope, node.key).node.content;
+                for (var i = 0; i < node.children.length; i++) {
+                  copyContent(node.children[i]);
+                }
+              }
+              for (var i = 0; i < $scope.$treeScope.$operationRecordList.length; i++) {
+                var record = $scope.$treeScope.$operationRecordList[i];
+                if ("insert" == record.operation) {
+                  for (var i = 0; i < record.nodeList.length; i++) {
+                    copyContent(record.nodeList[i]);
+                  };
+                };
+              };
+              console.log($scope.$treeScope.$operationRecordList)
+              var record = $scope.$treeScope.$operationRecordList[$scope.$treeScope.$operationRecordList.cursor];
+              $scope.$treeScope.$operationRecordList.cursor--;
+              if ("delete" == record.operation) {
+                for (var i = record.nodeList.length - 1; i >= 0; i--) {
+                  // var nodesScope = null;
+                  // if (!record.nodeList[i].parent_key) {
+                  //   nodesScope = $scope.$treeScope.$childNodesScope;
+                  // } else {
+                  //   var targetScope = $scope.getNodeScopeByKey($scope.$treeScope, record.nodeList[i].parent_key);
+                  //   nodesScope = targetScope.$childNodesScope;
+                  // }
+                  // var stub_node = $scope.createTreeAndRemoteNode(record.nodeList[i]);
+                  // nodesScope.insertNode(record.nodeList[i].position, stub_node);
+                  // $scope.syncNodesToRemote(nodesScope);
+                  var nodesScope = $scope.getParentChildrenScopeByPositionArray(record.nodeList[i].position_array);
+                  var stub_node = $scope.createTreeAndRemoteNode(record.nodeList[i]);
+                  nodesScope.insertNode(record.nodeList[i].position_array[record.nodeList[i].position_array.length-1], stub_node);
+                  $scope.syncNodesToRemote(nodesScope);
+                }
+              } else if ("insert" == record.operation) {
+                for (var i = record.nodeList.length - 1; i >= 0; i--) {
+                  // if (!record.nodeList[i].parent_key) {
+                  //   nodesScope = $scope.$treeScope.$childNodesScope;
+                  // } else {
+                    // var targetScope = $scope.getNodeScopeByKey($scope.$treeScope, record.nodeList[i].parent_key);
+                    // nodesScope = targetScope.$childNodesScope;
+                  //}
+                  var nodesScope = $scope.getParentChildrenScopeByPositionArray(record.nodeList[i].position_array);
+                  $scope.deleteTreeContent(record.nodeList[i])
+                  console.log(nodesScope)
+                  nodesScope.$modelValue.splice(record.nodeList[i].position_array[record.nodeList[i].position_array.length-1], 1)[0];
+                  $scope.syncNodesToRemote(nodesScope);
+                }
+              }
+            }
+          } else if ($event.ctrlKey && 89 == $event.keyCode) {
+            console.log($scope.$treeScope.$operationRecordList)
+            if ($scope.$treeScope.$operationRecordList.cursor < $scope.$treeScope.$operationRecordList.length-1) {
+              $scope.$treeScope.$operationRecordList.cursor++;
+              var record = $scope.$treeScope.$operationRecordList[$scope.$treeScope.$operationRecordList.cursor];
+              if ("insert" == record.operation) {
+                for (var i = 0; i < record.nodeList.length; i++) {
+                  // var nodesScope = null;
+                  // if (!record.nodeList[i].parent_key) {
+                  //   nodesScope = $scope.$treeScope.$childNodesScope;
+                  // } else {
+                  //   var targetScope = $scope.getNodeScopeByKey($scope.$treeScope, record.nodeList[i].parent_key);
+                  //   nodesScope = targetScope.$childNodesScope;
+                  // }
+                  // console.log("aaaaaaaaaaaaaaaaaaaa")
+                  // console.log(record.nodeList[i])
+                  var nodesScope = $scope.getParentChildrenScopeByPositionArray(record.nodeList[i].position_array);
+                  var stub_node = $scope.createTreeAndRemoteNode(record.nodeList[i]);
+                  nodesScope.insertNode(record.nodeList[i].position_array[record.nodeList[i].position_array.length-1], stub_node);
+                  //console.log(stub_node)
+                  $scope.syncNodesToRemote(nodesScope);
+                }
+              } else if ("delete" == record.operation) {
+                for (var i = 0; i < record.nodeList.length; i++) {
+                  // var nodesScope = null;
+                  // if (!record.nodeList[i].parent_key) {
+                  //   nodesScope = $scope.$treeScope.$childNodesScope;
+                  // } else {
+                  //   var targetScope = $scope.getNodeScopeByKey($scope.$treeScope, record.nodeList[i].parent_key);
+                  //   nodesScope = targetScope.$childNodesScope;
+                  // }
+                  // $scope.deleteTreeContent(record.nodeList[i])
+                  // nodesScope.$modelValue.splice(record.nodeList[i].position+1, 1)[0];
+                  // $scope.syncNodesToRemote(nodesScope);
+                  var nodesScope = $scope.getParentChildrenScopeByPositionArray(record.nodeList[i].position_array);
+                  $scope.deleteTreeContent(record.nodeList[i])
+                  console.log(nodesScope)
+                  nodesScope.$modelValue.splice(record.nodeList[i].position_array[record.nodeList[i].position_array.length-1], 1)[0];
+                  $scope.syncNodesToRemote(nodesScope);
+                }
+              }
+            }
           } else if ($event.ctrlKey && $event.shiftKey && 86 == $event.keyCode) {
             $scope.paste();
             $event.cancelBubble = true;
           } else if ($event.ctrlKey && 46 == $event.keyCode) {
-            $scope.deleteSelectNodes();
+            if (!!$scope.$treeScope.$selectedNodeScope || 0 < $scope.$treeScope.$selectedNodeScope.length) {
+              $scope.deleteNodeList($scope.$treeScope.$selectedNodeScope);
+              $scope.$treeScope.$selectedNodeScope = [];
+            }
           } else {
             $event.returnValue = true;
           }
@@ -557,7 +725,8 @@
         };
 
         $scope.index = function() {
-          return $scope.$parentNodesScope.$modelValue.indexOf($scope.$modelValue);
+          var nodesScope = !!$scope.$parentNodesScope?$scope.$parentNodesScope:$scope.$treeScope.$childNodesScope;
+          return nodesScope.$modelValue.indexOf($scope.$modelValue);
         };
 
         $scope.dragEnabled = function() {
@@ -617,11 +786,7 @@
 
         $scope.remove = function() {
           if ($scope.isLastNode()) return;
-
-          $scope.deleteTreeContent($scope.node_stub)
-          var removedNode = $scope.$parentNodesScope.removeNode($scope.$modelValue);
-          $scope.syncNodesToRemote($scope.$parentNodesScope);
-          return removedNode;
+          $scope.deleteNodeList([$scope]);
         };
 
         $scope.toggle = function() {
