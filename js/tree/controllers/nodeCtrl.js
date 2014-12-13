@@ -241,6 +241,11 @@
 
               $event.cancelBubble = true;
             }
+          } else if ($event.ctrlKey && $event.shiftKey && 86 == $event.keyCode) {
+              var positionArray = $scope.$treeScope.getPositionArray($scope, $scope.$treeScope);
+              positionArray[positionArray.length-1]++;
+              $scope.$treeScope.paste(positionArray);
+              $event.cancelBubble = true;
           } else {
             $event.returnValue = true;
           }

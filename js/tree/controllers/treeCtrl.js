@@ -549,21 +549,16 @@
             if (27 == $event.keyCode) {
               $scope.clearNodeState();
               $event.returnValue = true;
-            } else if ($event.ctrlKey && 67 == $event.keyCode) {
+            } else if ($event.ctrlKey && $event.shiftKey &&  67 == $event.keyCode) {
               $scope.copy();
-            } else if ($event.ctrlKey && $event.shiftKey && 86 == $event.keyCode) {
-              var positionArray = $scope.$treeScope.getPositionArray($scope, $scope.$treeScope);
-              positionArray[positionArray.length-1]++;
-              $scope.paste(positionArray);
-              $event.cancelBubble = true;
             } else if ($event.ctrlKey && 46 == $event.keyCode) {
               $scope.delete();
-            } else if ($event.ctrlKey && 88 == $event.keyCode) {
+            } else if ($event.ctrlKey && $event.shiftKey && 88 == $event.keyCode) {
               $scope.copy();
               $scope.delete();
-            } else if ($event.ctrlKey && 90 == $event.keyCode) {
+            } else if ($event.ctrlKey && $event.shiftKey && 90 == $event.keyCode) {
               $scope.undo();
-            } else if ($event.ctrlKey && 89 == $event.keyCode) {
+            } else if ($event.ctrlKey && $event.shiftKey && 89 == $event.keyCode) {
               $scope.redo();
             } else {
               $event.returnValue = true;
