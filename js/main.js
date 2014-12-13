@@ -131,9 +131,6 @@
       
     }
 
-    var syncLocalToRemote = function(remote, local, path) {
-      remote.children = local.children;
-    }
 
     $scope.tree = {
       "name" : "",
@@ -153,17 +150,17 @@
       $scope.base_url = window.firebase_url + "/" + $scope.username + "/" + $scope.app_name + "/notes/" +$scope.noteId;
       $scope.tree_url = $scope.base_url + "/tree";
       var remoteTree = $firebase(new Firebase($scope.tree_url)).$asObject();
-      remoteTree.$loaded().then(function() {
-        // console.log($scope.tree_url)
-        // console.log(remoteTree)
+      // remoteTree.$loaded().then(function() {
+      //   // console.log($scope.tree_url)
+      //   // console.log(remoteTree)
+      //   diffTree(remoteTree, $scope.tree, $scope.tree_url+"/children", syncRemoteToLocal);
+      //   //console.log(remoteTree)
+      //   //console.log($scope.tree)
+      remoteTree.$watch(function(){
+        // console.log("remote")
         diffTree(remoteTree, $scope.tree, $scope.tree_url+"/children", syncRemoteToLocal);
-        //console.log(remoteTree)
-        //console.log($scope.tree)
-        remoteTree.$watch(function(){
-          // console.log("remote")
-          diffTree(remoteTree, $scope.tree, $scope.tree_url+"/children", syncRemoteToLocal);
-          //$scope.tree.children = remoteTree.children
-        })
+        //$scope.tree.children = remoteTree.children
+      // })
 
         // $scope.$watch(function() {
         //     return $scope.tree;
@@ -174,6 +171,12 @@
         //   console.log($scope.tree)
         // });
       });
+      $scope.note_item_info_url = $scope.base_url + "/info";
+      var noteItemInfo = $firebase(new Firebase($scope.note_item_info_url)).$asObject();
+      noteItemInfo.$watch(function(){
+        if (document.title != noteItemInfo.name) document.title = noteItemInfo.name;
+        $scope.title = noteItemInfo.name;
+      })
     } else {
       window.location.replace("login.html")
     }

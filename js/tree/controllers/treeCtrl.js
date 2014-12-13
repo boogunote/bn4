@@ -184,7 +184,7 @@
           $scope.base_url = window.firebase_url + "/" + $scope.username + "/" + $scope.app_name + "/notes/" +$scope.noteId;
           $scope.tree_url = $scope.base_url + "/tree";
         } else {
-          return;
+          window.location.replace("login.html")
         }
 
 
