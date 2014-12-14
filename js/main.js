@@ -131,7 +131,7 @@
       
     }
 
-    $scope.treeFuns = {}
+    $scope.exportFuns = {}
 
 
     $scope.tree = {
@@ -179,9 +179,30 @@
         if (document.title != noteItemInfo.name) document.title = noteItemInfo.name;
         $scope.title = noteItemInfo.name;
       })
+
+      var offAuthCallback = function() {
+        alert("login again")
+        window.location.replace("login.html");
+      }
+      ref.offAuth(offAuthCallback);
+      $scope.exportFuns.logout = function() {
+        ref.unauth();
+        window.location.replace("login.html");
+      }
+
     } else {
-      window.location.replace("login.html")
+      window.location.replace("login.html");
     }
+
+    $scope.isOffline = false;
+
+    ref.child('.info/connected').on('value', function(connectedSnap) {
+      if (connectedSnap.val() === true) {
+        $scope.isOffline = false;
+      } else {
+        $scope.isOffline = true;
+      }
+    });
 
   });
 

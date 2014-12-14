@@ -568,8 +568,8 @@
 
         document.addEventListener("keydown", $scope.onKeyDown);
 
-        $scope.treeFuns.undo = $scope.undo;
-        $scope.treeFuns.redo = $scope.redo;
+        $scope.exportFuns.undo = $scope.undo;
+        $scope.exportFuns.redo = $scope.redo;
       }
     ]);
 })();

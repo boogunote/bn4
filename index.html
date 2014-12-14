@@ -30,10 +30,15 @@
     </ol>
   </script>  
   <div class="container" ng-controller="treesCtrl">
-  <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-    <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-chevron-left" ng-click="treeFuns.undo()"></button>
-    <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-chevron-right" ng-click="treeFuns.redo(this)"></button>
-  </nav>
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div id="connect_status"></div>
+      <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-chevron-left" ng-click="exportFuns.undo()"></button>
+      <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-chevron-right" ng-click="exportFuns.redo(this)"></button>
+      <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-log-out pull-right" ng-click="exportFuns.logout(this)"></button>
+    </nav>
+    <div class="alert alert-danger" role="alert" ng-class="{'hidden': !isOffline}" ng-model="isOffline" ng-init="isOffline=false">
+      Offline
+    </div>
     <div class="row">
       <div class="col-sm-6" ng-model="title">
         <h3>{{title}}</h3>
