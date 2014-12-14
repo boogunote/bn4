@@ -211,7 +211,6 @@
         };
 
         $scope.onKeyDown = function(scope, $event) {
-          console.log($event.keyCode);
           $event.returnValue = false;
           if ($event.shiftKey && 13 == $event.keyCode) {
             var nodeData = scope.newSubItem(scope);

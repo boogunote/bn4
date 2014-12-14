@@ -18,7 +18,7 @@
       </div>
       <div class="tree-node-content">
         <a class="btn btn-success btn-xs" data-nodrag ng-click="toggle(this)"><span class="glyphicon" ng-class="{'glyphicon-chevron-right': node.collapsed, 'glyphicon-chevron-down': !node.collapsed}"></span></a>
-        <textarea ng-model="node.content" ng-keydown="onKeyDown(this, $event)" ng-click="onClick(this, $event)"></textarea>
+        <textarea ng-model="node.content" ng-keydown="onKeyDown(this, $event)" ng-click="onClick(this, $event)" ng-focus="onFocus(this, $event)"></textarea>
         <a class="pull-right btn btn-danger btn-xs" data-nodrag ng-click="remove(this)"><span class="glyphicon glyphicon-remove"></span></a>
         <a class="pull-right btn btn-primary btn-xs" data-nodrag ng-click="newSubItem(this)" style="margin-right: 8px;"><span class="glyphicon glyphicon-play"></span></a>
         <a class="pull-right btn btn-primary btn-xs" data-nodrag ng-click="newSiblingNode(this)" style="margin-right: 8px;"><span class="glyphicon glyphicon-list"></span></a>
