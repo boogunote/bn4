@@ -468,8 +468,10 @@
           return selectedNodeList;
         }
 
-        $scope.delete = function() {
+        $scope.delete = function(isOperateFocused) {
           var selectedNodeScopeList = $scope.getSelectedNodeScopeList();
+          if (isOperateFocused && 0 >= selectedNodeScopeList.length && !!$scope.focusedNodeScope) 
+            selectedNodeScopeList.push($scope.focusedNodeScope);
           var recordNodeList = [];
           for (var i = 0; i < selectedNodeScopeList.length; i++) {
             var positionArray = $scope.getPositionArray(selectedNodeScopeList[i], $scope);
@@ -479,10 +481,10 @@
           $scope.record(recordNodeList, "remove");
         }
 
-        $scope.copy = function() {
-          console.log("$scope.copy = function() {")
+        $scope.copy = function(isOperateFocused) {
           var selectedNodeScopeList = $scope.getSelectedNodeScopeList();
-          console.log(selectedNodeScopeList)
+          if (isOperateFocused && 0 >= selectedNodeScopeList.length && !!$scope.focusedNodeScope) 
+            selectedNodeScopeList.push($scope.focusedNodeScope);
           var visite = function(nodeScope) {
             var nodeData = {
               key : nodeScope.node_stub.key,
@@ -544,18 +546,19 @@
         }
 
         $scope.onKeyDown = function($event) {
+          console.log($event.keyCode);
           $uiTreeHelper.safeApply($scope, function() {
             $event.returnValue = false;
             if (27 == $event.keyCode) {
               $scope.clearNodeState();
               $event.returnValue = true;
             } else if ($event.ctrlKey && $event.shiftKey &&  67 == $event.keyCode) {
-              $scope.copy();
+              $scope.copy(true);
             } else if ($event.ctrlKey && 46 == $event.keyCode) {
-              $scope.delete();
+              $scope.delete(true);
             } else if ($event.ctrlKey && $event.shiftKey && 88 == $event.keyCode) {
-              $scope.copy();
-              $scope.delete();
+              $scope.copy(true);
+              $scope.delete(true);
             } else if ($event.ctrlKey && $event.shiftKey && 90 == $event.keyCode) {
               $scope.undo();
             } else if ($event.ctrlKey && $event.shiftKey && 89 == $event.keyCode) {
@@ -567,6 +570,11 @@
         };
 
         document.addEventListener("keydown", $scope.onKeyDown);
+
+        $scope.focusedNodeScope = null;
+        $scope.onFocus = function(nodeScope, $event) {
+          $scope.focusedNodeScope = nodeScope;
+        }
 
         $scope.exportFuns.undo = $scope.undo;
         $scope.exportFuns.redo = $scope.redo;

@@ -138,13 +138,14 @@ var login = function () {
     }, function(err, authData) {
       console.log(err);
       if (err) {
-        switch (err.code) {
-          case "INVALID_EMAIL":
-          // handle an invalid email
-          case "INVALID_PASSWORD":
-          // handle an invalid password
-          default:
-        }
+        alert("Login Error: " + err.code);
+        // switch (err.code) {
+        //   case "INVALID_EMAIL":
+        //   // handle an invalid email
+        //   case "INVALID_PASSWORD":
+        //   // handle an invalid password
+        //   default:
+        // }
       } else if (authData) {
         // user authenticated with Firebase
         console.log("Logged In! User ID: " + authData.uid);
