@@ -151,6 +151,7 @@
 
         $scope.newSubItem = function(scope) {
           // console.log($scope)
+          if ($scope.node.collapsed) $scope.node.collapsed = false;
           var positionArray = $scope.$treeScope.getPositionArray($scope, $scope.$treeScope);
           positionArray.push(0)
           console.log(positionArray)
