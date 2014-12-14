@@ -10,7 +10,6 @@
   <link rel="stylesheet" href="css/main.css">
 </head>
 <body ng-app="treesApp">
-
   <!-- Nested node template -->
   <script type="text/ng-template" id="nodes_renderer.html">
     <div ng-model="selected" ng-model="node.collapsed" ng-class="{'tree-node-selected' : selected, 'tree-node-unselected' : !selected}">
@@ -21,7 +20,8 @@
         <a class="btn btn-success btn-xs" data-nodrag ng-click="toggle(this)"><span class="glyphicon" ng-class="{'glyphicon-chevron-right': node.collapsed, 'glyphicon-chevron-down': !node.collapsed}"></span></a>
         <textarea ng-model="node.content" ng-keydown="onKeyDown(this, $event)" ng-click="onClick(this, $event)"></textarea>
         <a class="pull-right btn btn-danger btn-xs" data-nodrag ng-click="remove(this)"><span class="glyphicon glyphicon-remove"></span></a>
-        <a class="pull-right btn btn-primary btn-xs" data-nodrag ng-click="newSubItem(this)" style="margin-right: 8px;"><span class="glyphicon glyphicon-plus"></span></a>
+        <a class="pull-right btn btn-primary btn-xs" data-nodrag ng-click="newSubItem(this)" style="margin-right: 8px;"><span class="glyphicon glyphicon-play"></span></a>
+        <a class="pull-right btn btn-primary btn-xs" data-nodrag ng-click="newSiblingNode(this)" style="margin-right: 8px;"><span class="glyphicon glyphicon-list"></span></a>
       </div>
     </div>
     <ol ui-tree-nodes="" ng-model="node_stub.children" ng-class="{hidden: node.collapsed}">
@@ -30,6 +30,10 @@
     </ol>
   </script>  
   <div class="container" ng-controller="treesCtrl">
+  <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-chevron-left" ng-click="treeFuns.undo()"></button>
+    <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-chevron-right" ng-click="treeFuns.redo(this)"></button>
+  </nav>
     <div class="row">
       <div class="col-sm-6" ng-model="title">
         <h3>{{title}}</h3>

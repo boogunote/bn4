@@ -567,6 +567,9 @@
         };
 
         document.addEventListener("keydown", $scope.onKeyDown);
+
+        $scope.treeFuns.undo = $scope.undo;
+        $scope.treeFuns.redo = $scope.redo;
       }
     ]);
 })();

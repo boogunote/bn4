@@ -131,6 +131,8 @@
       
     }
 
+    $scope.treeFuns = {}
+
 
     $scope.tree = {
       "name" : "",

@@ -1,3 +1,5 @@
+body { padding-top: 70px; }
+
 .tree-node-unselected {
     border: 1px solid #dae2ea;
     background: #f8faff;

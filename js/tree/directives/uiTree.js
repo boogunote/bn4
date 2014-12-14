@@ -6,11 +6,11 @@
     function(treeConfig, keys, $window) {
       return {
         restrict: 'EA',
-        scope: {
-          callbacks: '=?',
-          dragDelay: '=?',
-          dragDistance: '=?',
-        },
+        // scope: {
+        //   callbacks: '=?',
+        //   dragDelay: '=?',
+        //   dragDistance: '=?',
+        // },
         controller: 'TreeController',
         link: function(scope, element, attrs) {
           var callbacks = {
