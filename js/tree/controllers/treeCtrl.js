@@ -268,7 +268,7 @@
           if (!!nodesScope.$nodeScope) {
             sync.$set(clone_tree(nodesScope.$nodeScope.node_stub));
           } else {
-            sync.$set(clone_tree($scope.$parent.tree));
+            sync.$set(clone_tree($scope.tree));
           }
           //console.log(new_tree)
           
@@ -292,7 +292,7 @@
               icon : !!_nodeData.icon?_nodeData.icon:null
             }
 
-            console.log($scope.base_url)
+            console.log(node)
             var sync = $firebase(new Firebase($scope.base_url + "/nodes"));
             sync.$set(_nodeData.key, node).then(function(ref) {
             }, function(error) {

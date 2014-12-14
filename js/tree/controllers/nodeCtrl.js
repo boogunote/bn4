@@ -193,7 +193,9 @@
           //   collapsed : false,
           // });
           var positionArray = $scope.$treeScope.getPositionArray($scope, $scope.$treeScope);
-          positionArray[positionArray.length-1]++;
+          if (next)
+            positionArray[positionArray.length-1]++;
+
           var nodeData = {
             positionArray : positionArray,
             key : $uiTreeHelper.getUniqueId(),
@@ -229,6 +231,8 @@
             } else if ($event.altKey) {
               direction = false;
             }
+            console.log("direction")
+            console.log(direction)
             if (null != direction) {
               var nodeData = $scope.newSiblingNode(direction);
               setTimeout(function(){
