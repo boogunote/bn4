@@ -64,6 +64,9 @@
           // console.log($scope.node_stub);
           var node = $firebase(new Firebase(node_url)).$asObject();
           node.$loaded().then(function() {
+            if (undefined === node.icon) node.icon = 0;
+            if (undefined === node.content) node.content = "";
+            if (undefined === node.children) node.children = [];
             node.$bindTo($scope, "node").then(function() {
               //console.log($scope.node)
               // $scope.$watch(function() {
@@ -160,7 +163,7 @@
             key : $uiTreeHelper.getUniqueId(),
             content : "",
             collapsed : false,
-            icon : "",
+            icon : 0,
             children : []
           }
           $scope.$treeScope.insertNodeAt(nodeData, positionArray, $scope.$treeScope);
@@ -202,7 +205,7 @@
             key : $uiTreeHelper.getUniqueId(),
             content : "",
             collapsed : false,
-            icon : "",
+            icon : 0,
             children : []
           }
           $scope.$treeScope.insertNodeAt(nodeData, positionArray, $scope.$treeScope);

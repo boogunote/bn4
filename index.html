@@ -14,7 +14,8 @@
   <script type="text/ng-template" id="nodes_renderer.html">
     <div ng-model="selected" ng-model="node.collapsed" ng-class="{'tree-node-selected' : selected, 'tree-node-unselected' : !selected}">
       <div class="tree-node-content">
-        <a class="btn btn-success btn-xs" data-nodrag ng-click="toggle(this)"><span class="glyphicon" ng-class="{'glyphicon-chevron-right': node.collapsed, 'glyphicon-chevron-down': !node.collapsed}"></span></a>
+        <a class="btn" data-nodrag ng-click="toggle(this)"><span class="glyphicon" style="font-size:24px" ng-class="{'glyphicon-plus-sign': node.collapsed, 'glyphicon-minus-sign': !node.collapsed}"></span></a>
+        <span class="glyphicon" style="font-size:24px" ng-class="{'hidden':node.icon==0, 'glyphicon-flag':node.icon==1, 'glyphicon-ok':node.icon==2, 'glyphicon-remove':node.icon==3, 'glyphicon-star':node.icon==4, 'glyphicon-question-sign':node.icon==5, 'glyphicon-warning-sign':node.icon==6, 'glyphicon-fire':node.icon==7}"></span>
         <textarea ng-model="node.content" ng-keydown="onKeyDown(this, $event)" ng-click="onClick(this, $event)" ng-focus="onFocus(this, $event)"></textarea>
         <a class="pull-right btn btn-danger btn-xs" data-nodrag ng-click="remove(this)"><span class="glyphicon glyphicon-remove"></span></a>
         <a class="pull-right btn btn-primary btn-xs" data-nodrag ng-click="newSubItem(this)" style="margin-right: 8px;"><span class="glyphicon glyphicon-play"></span></a>

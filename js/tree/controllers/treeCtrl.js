@@ -362,7 +362,7 @@
           console.log("focusNodeAt")
           console.log(nodeScope)
           if (nodeScope)
-            nodeScope.$element[0].childNodes[1].childNodes[3].childNodes[3].focus();
+            nodeScope.$element[0].childNodes[1].childNodes[1].childNodes[5].focus();
         }
 
         $scope.record = function(nodeDataList, operation) {
@@ -545,6 +545,16 @@
           $scope.record(pasteData, "insert");
         }
 
+        $scope.stepIcon = function(direction) {
+          if (!$scope.focusedNodeScope) return;
+          if (direction)
+            $scope.focusedNodeScope.node.icon++;
+          else
+            $scope.focusedNodeScope.node.icon--;
+          if ($scope.focusedNodeScope.node.icon>7) $scope.focusedNodeScope.node.icon = 0;
+          if ($scope.focusedNodeScope.node.icon<0) $scope.focusedNodeScope.node.icon = 7;
+        }
+
         $scope.onKeyDown = function($event) {
           console.log($event.keyCode);
           $uiTreeHelper.safeApply($scope, function() {
@@ -563,6 +573,10 @@
               $scope.undo();
             } else if ($event.ctrlKey && $event.shiftKey && 89 == $event.keyCode) {
               $scope.redo();
+            } else if ($event.altKey && 187 == $event.keyCode) {
+              $scope.stepIcon(true);
+            } else if ($event.altKey && 189 == $event.keyCode) {
+              $scope.stepIcon(false);
             } else {
               $event.returnValue = true;
             }
