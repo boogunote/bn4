@@ -13,9 +13,6 @@
   <!-- Nested node template -->
   <script type="text/ng-template" id="nodes_renderer.html">
     <div ng-model="selected" ng-model="node.collapsed" ng-class="{'tree-node-selected' : selected, 'tree-node-unselected' : !selected}">
-      <div class="pull-left tree-handle" ui-tree-handle>
-        <span class="glyphicon glyphicon-list"></span>
-      </div>
       <div class="tree-node-content">
         <a class="btn btn-success btn-xs" data-nodrag ng-click="toggle(this)"><span class="glyphicon" ng-class="{'glyphicon-chevron-right': node.collapsed, 'glyphicon-chevron-down': !node.collapsed}"></span></a>
         <textarea ng-model="node.content" ng-keydown="onKeyDown(this, $event)" ng-click="onClick(this, $event)" ng-focus="onFocus(this, $event)"></textarea>
@@ -63,11 +60,9 @@
   <script type="text/javascript" src="lib/firebase/angularfire.min.js"></script>
   <script type="text/javascript" src="js/common.js"></script>
   <script type="text/javascript" src="js/tree/main.js"></script>
-  <script type="text/javascript" src="js/tree/controllers/handleCtrl.js"></script>
   <script type="text/javascript" src="js/tree/controllers/nodeCtrl.js"></script>
   <script type="text/javascript" src="js/tree/controllers/nodesCtrl.js"></script>
   <script type="text/javascript" src="js/tree/controllers/treeCtrl.js"></script>
-  <script type="text/javascript" src="js/tree/directives/uiTreeHandle.js"></script>
   <script type="text/javascript" src="js/tree/directives/uiTree.js"></script>
   <script type="text/javascript" src="js/tree/directives/uiTreeNode.js"></script>
   <script type="text/javascript" src="js/tree/directives/uiTreeNodes.js"></script>
