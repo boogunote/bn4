@@ -213,6 +213,7 @@
         }
 
         $scope.getScopeByPositionArray = function(positionArray, rootScope) {
+          if (!rootScope) rootScope = $scope;
           // console.log("getScopeByPositionArray")
           // console.log(positionArray)
           // console.log(rootScope)
@@ -430,6 +431,11 @@
               console.log(record.nodeList[i]);
               $scope.insertNodeAt(record.nodeList[i], record.nodeList[i].positionArray, $scope);
             }
+            setTimeout(function() {
+              for (var i = 0; i < record.nodeList.length; i++) {
+                $scope.getScopeByPositionArray(record.nodeList[i].positionArray).select();
+              };
+            }, 0);
           }
         }
 
@@ -445,6 +451,11 @@
               console.log(record.nodeList[i]);
               $scope.insertNodeAt(record.nodeList[i], record.nodeList[i].positionArray, $scope);
             }
+            setTimeout(function() {
+              for (var i = 0; i < record.nodeList.length; i++) {
+                $scope.getScopeByPositionArray(record.nodeList[i].positionArray).select();
+              };
+            }, 0);
           } else if ("remove" == record.operation) {
             for (var i = 0; i < record.nodeList.length; i++) {
               $scope.removeNodeAt(record.nodeList[i].positionArray, $scope);
