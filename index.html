@@ -32,11 +32,17 @@
       <div id="connect_status"></div>
       <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-chevron-left" ng-click="exportFuns.undo()"></button>
       <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-chevron-right" ng-click="exportFuns.redo(this)"></button>
+      <input ng-model="search_string"></input>
+      <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-search" ng-click="search(this)"></button>
+      <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon glyphicon-open" ng-class="{'hidden': !search_results||search_results.length<=0}" ng-click="search_results=[]"></button>
       <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-log-out pull-right" ng-click="exportFuns.logout(this)"></button>
     </nav>
     <div class="alert alert-danger" role="alert" ng-class="{'hidden': !isOffline}" ng-model="isOffline" ng-init="isOffline=false">
       Offline
     </div>
+    <li ng-repeat="result in search_results">
+      <a ng-href="#" ng-click="_focusNodeAt(result.positionArray)">{{result.content}}</a>
+    </li>
     <div class="row">
       <div class="col-sm-6" ng-model="title">
         <h3>{{title}}</h3>

@@ -200,26 +200,40 @@
         }
       }, logoutTime);
 
+      var firstTimeLoad = true
+      $scope.isOffline = false;
+
+      ref.child('.info/connected').on('value', function(connectedSnap) {
+        if (connectedSnap.val() === true) {
+          if (!firstTimeLoad) {
+            var authData = ref.getAuth();
+            if (authData) location.reload();
+          } else {
+            firstTimeLoad = false;
+          }
+          $scope.isOffline = false;
+        } else {
+          $scope.isOffline = true;
+        }
+      });
+
+      //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      // search
+      $scope.search = function() {
+        $scope.search_results = [];
+        $scope.exportFuns.searchInTree($scope.search_string, $scope.search_results);
+      }
+      
+      $scope._focusNodeAt = function(positionArray) {
+        $scope.exportFuns.expandByPositionArray(positionArray);
+        setTimeout(function() {
+          $scope.exportFuns.focusNodeAt(positionArray)
+        },0);
+      }
+
     } else {
       window.location.replace("login.html");
     }
-
-    var firstTimeLoad = true
-    $scope.isOffline = false;
-
-    ref.child('.info/connected').on('value', function(connectedSnap) {
-      if (connectedSnap.val() === true) {
-        if (!firstTimeLoad) {
-          var authData = ref.getAuth();
-          if (authData) location.reload();
-        } else {
-          firstTimeLoad = false;
-        }
-        $scope.isOffline = false;
-      } else {
-        $scope.isOffline = true;
-      }
-    });
 
   });
 

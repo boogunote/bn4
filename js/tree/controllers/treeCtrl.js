@@ -200,6 +200,7 @@
         }
 
         $scope.getPositionArray = function(nodeScope, rootScope) {
+          if (!rootScope) rootScope = $scope;
           var positionArray = [];
           var currentScope = nodeScope;
           // currentScope is null or undefined means touch the root.
@@ -601,8 +602,42 @@
           $scope.focusedNodeScope = nodeScope;
         }
 
+        $scope.searchInTree = function(keyword, results) {
+          var visite = function(nodeScope) {
+            if (nodeScope.node) {
+              var index = nodeScope.node.content.indexOf(keyword);
+              if ( index > -1) {
+                var begin = index - 20;
+                begin = begin<0?0:begin;
+                var end = index + keyword.length + 20;
+                results.push({
+                  "content" : nodeScope.node.content.slice(begin, end),
+                  "positionArray" : $scope.getPositionArray(nodeScope)
+                });
+              }
+            };
+            var childNodeList = nodeScope.$childNodesScope.childNodes();
+            for (var i = 0; i < childNodeList.length; i++) {
+              visite(childNodeList[i])
+            }
+          }
+          visite($scope);
+        }
+
+        $scope.expandByPositionArray = function(positionArray, rootScope) {
+          if (!rootScope) rootScope = $scope;
+          var currentScope = rootScope;
+          for (var i = 0; i < positionArray.length; i++) {
+              currentScope = currentScope.$childNodesScope.childNodes()[positionArray[i]];
+              currentScope.node.collapsed = false;
+          }
+        }
+
         $scope.exportFuns.undo = $scope.undo;
         $scope.exportFuns.redo = $scope.redo;
+        $scope.exportFuns.searchInTree = $scope.searchInTree;
+        $scope.exportFuns.focusNodeAt = $scope.focusNodeAt;
+        $scope.exportFuns.expandByPositionArray = $scope.expandByPositionArray;
       }
     ]);
 })();
