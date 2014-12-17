@@ -216,6 +216,7 @@
         $scope.onKeyDown = function(scope, $event) {
           $event.returnValue = false;
           if ($event.shiftKey && 13 == $event.keyCode) {
+            $scope.$treeScope.clearNodeState();
             var nodeData = scope.newSubItem(scope);
             setTimeout(function(){
               $scope.$treeScope.focusNodeAt(nodeData.positionArray);
@@ -237,6 +238,7 @@
             console.log("direction")
             console.log(direction)
             if (null != direction) {
+              $scope.$treeScope.clearNodeState();
               var nodeData = $scope.newSiblingNode(direction);
               setTimeout(function(){
                 $scope.$treeScope.focusNodeAt(nodeData.positionArray);
@@ -249,10 +251,11 @@
               $event.cancelBubble = true;
             }
           } else if ($event.ctrlKey && $event.shiftKey && 86 == $event.keyCode) {
-              var positionArray = $scope.$treeScope.getPositionArray($scope, $scope.$treeScope);
-              positionArray[positionArray.length-1]++;
-              $scope.$treeScope.paste(positionArray);
-              $event.cancelBubble = true;
+            $scope.$treeScope.clearNodeState();
+            var positionArray = $scope.$treeScope.getPositionArray($scope, $scope.$treeScope);
+            positionArray[positionArray.length-1]++;
+            $scope.$treeScope.paste(positionArray);
+            $event.cancelBubble = true;
           } else {
             $event.returnValue = true;
           }
