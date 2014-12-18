@@ -200,17 +200,21 @@
         }
       }, logoutTime);
 
-      var firstTimeLoad = true
+      // var firstTimeLoad = true
       $scope.isOffline = false;
 
       ref.child('.info/connected').on('value', function(connectedSnap) {
         if (connectedSnap.val() === true) {
-          if (!firstTimeLoad) {
-            var authData = ref.getAuth();
-            if (authData) location.reload();
-          } else {
-            firstTimeLoad = false;
-          }
+          // if (!firstTimeLoad) {
+          //   var authData = ref.getAuth();
+          //   if (authData) {
+          //     if (confirm("Reconnected. Do you want to refesh this page")) {
+          //       location.reload();
+          //     }
+          //   }
+          // } else {
+          //   firstTimeLoad = false;
+          // }
           $scope.isOffline = false;
         } else {
           $scope.isOffline = true;
