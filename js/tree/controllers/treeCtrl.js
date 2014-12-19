@@ -605,7 +605,7 @@
         $scope.searchInTree = function(keyword, results) {
           var visite = function(nodeScope) {
             if (nodeScope.node) {
-              var index = nodeScope.node.content.indexOf(keyword);
+              var index = nodeScope.node.content.toLowerCase().indexOf(keyword.toLowerCase());
               if ( index > -1) {
                 var begin = index - 20;
                 begin = begin<0?0:begin;
