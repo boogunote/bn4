@@ -277,6 +277,7 @@
         }
 
         $scope.insertNodeAt = function(nodeData, positionArray, rootScope) {
+          if (!rootScope) rootScope = $scope;
           var parentPositionArray = positionArray.slice(0,-1)
           var parentNodeScope = $scope.getScopeByPositionArray(parentPositionArray, rootScope);
           var nodeList = [];
@@ -291,6 +292,7 @@
             var node = {
               content : _nodeData.content,
               collapsed : _nodeData.collapsed,
+              fold : _nodeData.fold,
               icon : !!_nodeData.icon?_nodeData.icon:null
             }
 
@@ -332,6 +334,7 @@
             key : nodeScope.node_stub.key,
             content : nodeScope.node.content,
             collapsed : nodeScope.node.collapsed,
+            fold : nodeScope.node.fold,
             icon : nodeScope.node.icon,
             children : []
           }
@@ -364,7 +367,7 @@
           console.log("focusNodeAt")
           console.log(nodeScope)
           if (nodeScope)
-            nodeScope.$element[0].childNodes[1].childNodes[1].childNodes[5].focus();
+            nodeScope.$element[0].getElementsByTagName("textarea")[0].focus();
         }
 
         $scope.record = function(nodeDataList, operation) {
@@ -482,8 +485,9 @@
 
         $scope.delete = function(isOperateFocused) {
           var selectedNodeScopeList = $scope.getSelectedNodeScopeList();
-          if (isOperateFocused && 0 >= selectedNodeScopeList.length && !!$scope.focusedNodeScope) 
-            selectedNodeScopeList.push($scope.focusedNodeScope);
+          if (isOperateFocused && 0 >= selectedNodeScopeList.length && !!$scope.focusedNodeScope)
+            // if ($scope.focusedNodeScope.$element[0].getElementsByTagName("textarea")[0] === document.activeElement)
+              selectedNodeScopeList.push($scope.focusedNodeScope);
           var recordNodeList = [];
           for (var i = 0; i < selectedNodeScopeList.length; i++) {
             var positionArray = $scope.getPositionArray(selectedNodeScopeList[i], $scope);
@@ -502,6 +506,7 @@
               key : nodeScope.node_stub.key,
               content : nodeScope.node.content,
               collapsed : nodeScope.node.collapsed,
+              fold : nodeScope.node.fold,
               icon : nodeScope.node.icon,
               children : []
             }
@@ -523,9 +528,11 @@
           localStorage.clipboardData = JSON.stringify(copiedNodeList);
         }
 
-        $scope.paste = function(positionArray) {
-          console.log("$scope.paste = function(positionArray) {")
-          console.log(positionArray)
+        $scope.paste = function() {
+          if (!$scope.focusedNodeScope) return;
+          $scope.clearNodeState();
+          var positionArray = $scope.getPositionArray($scope.focusedNodeScope);
+          positionArray[positionArray.length-1]++;
           var clipboardData = localStorage.getItem("clipboardData");
           if (!clipboardData) return;
 
@@ -567,11 +574,83 @@
           if ($scope.focusedNodeScope.node.icon<0) $scope.focusedNodeScope.node.icon = 7;
         }
 
+        $scope.newSubItem = function() {
+          if (!$scope.focusedNodeScope) return;
+          // if ($scope.focusedNodeScope.$element[0].getElementsByTagName("textarea")[0] != document.activeElement) return;
+          $scope.clearNodeState();
+          if ($scope.focusedNodeScope.node.collapsed) $scope.focusedNodeScope.node.collapsed = false;
+          var positionArray = $scope.getPositionArray($scope.focusedNodeScope);
+          positionArray.push(0)
+          var nodeData = {
+            positionArray : positionArray,
+            key : $uiTreeHelper.getUniqueId(),
+            content : "",
+            collapsed : false,
+            fold : false,
+            icon : 0,
+            children : []
+          }
+          $scope.insertNodeAt(nodeData, positionArray);
+          $scope.record([nodeData], "insert");
+          setTimeout(function(){
+            $scope.focusNodeAt(positionArray);
+          }, 0);
+          return nodeData;
+        };
+
+        $scope.newSiblingNode = function(direction) {
+          if (!$scope.focusedNodeScope) return;
+          // if ($scope.focusedNodeScope.$element[0].getElementsByTagName("textarea")[0] != document.activeElement) return;
+          $scope.clearNodeState();
+          var positionArray = $scope.getPositionArray($scope.focusedNodeScope);
+          if (direction)
+            positionArray[positionArray.length-1]++;
+          var nodeData = {
+            positionArray : positionArray,
+            key : $uiTreeHelper.getUniqueId(),
+            content : "",
+            collapsed : false,
+            fold : false,
+            icon : 0,
+            children : []
+          }
+          $scope.insertNodeAt(nodeData, positionArray);
+          $scope.record([nodeData], "insert");
+          setTimeout(function(){
+            $scope.focusNodeAt(positionArray);
+          }, 0);
+          return nodeData;
+        };
+
+        $scope.fold = function() {
+          $scope.focusedNodeScope.node.fold = !$scope.focusedNodeScope.node.fold;
+          console.log("$scope.focusedNodeScope.node.fold:",$scope.focusedNodeScope.node.fold)
+        }
+
         $scope.onKeyDown = function($event) {
           console.log($event.keyCode);
           $uiTreeHelper.safeApply($scope, function() {
             $event.returnValue = false;
-            if (27 == $event.keyCode) {
+            if ($event.shiftKey && 13 == $event.keyCode) {
+              $scope.newSubItem();
+              $event.cancelBubble = true;
+            } else if (13 == $event.keyCode) {
+              var direction = null;
+              if ($event.ctrlKey) {
+                direction = true;
+              } else if ($event.altKey) {
+                direction = false;
+              }
+              if (null != direction) {
+                $scope.newSiblingNode(direction);
+                $event.cancelBubble = true;
+              } else {
+                $event.returnValue = true;
+              }
+            } else if ($event.ctrlKey && $event.shiftKey && 86 == $event.keyCode) {
+              $scope.paste();
+              $event.cancelBubble = true;
+            } else if (27 == $event.keyCode) {
               $scope.clearNodeState();
               $event.returnValue = true;
             } else if ($event.ctrlKey && $event.shiftKey &&  67 == $event.keyCode) {
@@ -589,6 +668,8 @@
               $scope.stepIcon(true);
             } else if ($event.altKey && 189 == $event.keyCode) {
               $scope.stepIcon(false);
+            } else if ($event.altKey && 83 == $event.keyCode) {
+              $scope.fold();
             } else {
               $event.returnValue = true;
             }
@@ -599,6 +680,8 @@
 
         $scope.focusedNodeScope = null;
         $scope.onFocus = function(nodeScope, $event) {
+          // console.log(document.activeElement)
+          // console.log(nodeScope.$element[0].getElementsByTagName("textarea")[0] === document.activeElement)
           $scope.focusedNodeScope = nodeScope;
         }
 

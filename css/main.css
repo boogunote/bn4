@@ -1,18 +1,68 @@
-body { padding-top: 70px; }
+body { padding-top: 40px; }
+
+.tree-container {
+    margin-left: 20px;
+    margin-bottom: 20px;
+}
 
 .tree-node-unselected {
-    border: 1px solid #dae2ea;
-    background: #f8faff;
+    /*border: 1px solid #dae2ea;*/
+    /*background: #f8faff;*/
 }
 
 .tree-node-selected {
-    border: 1px solid #dae2ea;
+    /*border: 1px solid #dae2ea;*/
     background: blue;
 }
 
-.tree-node-content {
-    margin: 10px;
+.tree-node {
 }
+
+.tree-node-wrapper {
+    /*position: relative;
+    margin-left: 20px;*/
+    display: -webkit-flex;
+    display: flex;
+}
+
+.tree-node-icon-container {
+/*    position: absolute;
+    text-align : right;
+    left: -20px;*/
+    margin-top: 2px;
+    -webkit-flex: none;
+          flex: none;
+}
+
+.tree-node-expand-button {
+    /*vertical-align: top*/
+/*    top : 2px;
+    position: relative;*/
+    margin: auto, auto;
+    /*margin-bottom: 2px;*/
+    font-size:10px;
+    width: 12px;
+    height: 12px;
+    cursor: pointer;
+    display:inline-block;
+}
+
+.tree-node-icon {
+    font-size:16px;
+}
+
+.tree-textarea {
+    /*width: 100%;*/
+    border:0px;
+    box-sizing:border-box;
+    -webkit-flex: 1;
+          flex: 1;
+}
+
+.tree-textarea-fold {
+    background-color: #E6E6E6;
+}
+
 .tree-handle {
     padding: 10px;
     background: #428bca;

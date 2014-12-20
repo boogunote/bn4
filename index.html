@@ -13,13 +13,14 @@
   <!-- Nested node template -->
   <script type="text/ng-template" id="nodes_renderer.html">
     <div ng-model="selected" ng-model="node.collapsed" ng-class="{'tree-node-selected' : selected, 'tree-node-unselected' : !selected}">
-      <div class="tree-node-content">
-        <a class="btn" data-nodrag ng-click="toggle(this)"><span class="glyphicon" style="font-size:24px" ng-class="{'glyphicon-plus-sign': node.collapsed, 'glyphicon-minus-sign': !node.collapsed}"></span></a>
-        <span class="glyphicon" style="font-size:24px" ng-class="{'hidden':node.icon==0, 'glyphicon-flag':node.icon==1, 'glyphicon-ok':node.icon==2, 'glyphicon-remove':node.icon==3, 'glyphicon-star':node.icon==4, 'glyphicon-question-sign':node.icon==5, 'glyphicon-warning-sign':node.icon==6, 'glyphicon-fire':node.icon==7}"></span>
-        <textarea ng-model="node.content" ng-keydown="onKeyDown(this, $event)" ng-click="onClick(this, $event)" ng-focus="onFocus(this, $event)"></textarea>
-        <a class="pull-right btn btn-danger btn-xs" data-nodrag ng-click="remove(this)"><span class="glyphicon glyphicon-remove"></span></a>
-        <a class="pull-right btn btn-primary btn-xs" data-nodrag ng-click="newSubItem(this)" style="margin-right: 8px;"><span class="glyphicon glyphicon-play"></span></a>
-        <a class="pull-right btn btn-primary btn-xs" data-nodrag ng-click="newSiblingNode(this)" style="margin-right: 8px;"><span class="glyphicon glyphicon-list"></span></a>
+      <div class="tree-node">
+        <div class="tree-node-wrapper">
+          <div class="tree-node-icon-container">  
+            <span class="tree-node-expand-button glyphicon" ng-class="{'glyphicon-plus-sign': node.collapsed, 'glyphicon-minus-sign': !node.collapsed}" ng-click="toggle(this)"></span>
+            <span class="glyphicon tree-node-icon" ng-class="{'hidden':node.icon==0, 'glyphicon-flag':node.icon==1, 'glyphicon-ok':node.icon==2, 'glyphicon-remove':node.icon==3, 'glyphicon-star':node.icon==4, 'glyphicon-question-sign':node.icon==5, 'glyphicon-warning-sign':node.icon==6, 'glyphicon-fire':node.icon==7}"></span>
+          </div>
+          <textarea class="tree-textarea animate msd-elastic" ng-class="{'tree-textarea-fold':node.fold}" ng-model="node.content" ng-keydown="onKeyDown(this, $event)" ng-click="onClick(this, $event)" ng-focus="onFocus(this, $event)"></textarea>
+        </div>
       </div>
     </div>
     <ol ui-tree-nodes="" ng-model="node_stub.children" ng-class="{hidden: node.collapsed}">
@@ -27,14 +28,21 @@
       </li>
     </ol>
   </script>  
-  <div class="container" ng-controller="treesCtrl">
+  <div class="tree-container" ng-controller="treesCtrl">
     <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
       <div id="connect_status"></div>
       <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-chevron-left" ng-click="exportFuns.undo()"></button>
       <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-chevron-right" ng-click="exportFuns.redo(this)"></button>
       <input ng-model="search_string"></input>
       <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-search" ng-click="search(this)"></button>
-      <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon glyphicon-open" ng-class="{'hidden': !search_results||search_results.length<=0}" ng-click="search_results=[]"></button>
+      <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-open" ng-class="{'hidden': !search_results||search_results.length<=0}" ng-click="search_results=[]"></button>
+      <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-plus" ng-click="newSiblingNode(true)"></button>
+      <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-play" ng-click="newSubItem()"></button>
+      <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-refresh" ng-click="stepIcon(true)"></button>
+      <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-list-alt" ng-click="copy(true)"></button>
+      <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-download" ng-click="paste()"></button>
+      <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-resize-small" ng-click="fold()"></button>
+      <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-remove" ng-click="delete(true)"></button>
       <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-log-out pull-right" ng-click="exportFuns.logout(this)"></button>
     </nav>
     <div class="alert alert-danger" role="alert" ng-class="{'hidden': !isOffline}" ng-model="isOffline" ng-init="isOffline=false">
@@ -43,8 +51,8 @@
     <li ng-repeat="result in search_results">
       <a ng-href="#" ng-click="_focusNodeAt(result.positionArray)">{{result.content}}</a>
     </li>
-    <div class="row">
-      <div class="col-sm-6" ng-model="title">
+    <div class="">
+      <div class="" ng-model="title">
         <h3>{{title}}</h3>
         <div ui-tree id="tree1-root">
           <ol ui-tree-nodes ng-model="tree.children">
@@ -54,17 +62,18 @@
       </div>
     </div>
 
-    <h3>Data binding</h3>
+<!--     <h3>Data binding</h3>
       <div class="col-sm-6">
         <pre class="code">{{ tree | json }}</pre>
       </div>
-    </div>
+    </div> -->
 
   </div>
   
   <script type="text/javascript" src="lib/angular/angular.min.js"></script>
   <script type="text/javascript" src="lib/firebase/firebase.js"></script>
   <script type="text/javascript" src="lib/firebase/angularfire.min.js"></script>
+  <script type="text/javascript" src="lib/elastic/elastic.js"></script>
   <script type="text/javascript" src="js/common.js"></script>
   <script type="text/javascript" src="js/tree/main.js"></script>
   <script type="text/javascript" src="js/tree/controllers/nodeCtrl.js"></script>

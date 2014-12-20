@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  angular.module('treesApp', ['ui.tree', 'firebase'])
+  angular.module('treesApp', ['ui.tree', 'firebase', 'monospaced.elastic'])
   .controller('treesCtrl', function($scope, $firebase, $location) {
     $scope.noteId = $location.path().substring(1);
     if (!$scope.noteId) {

@@ -65,6 +65,7 @@
           var node = $firebase(new Firebase(node_url)).$asObject();
           node.$loaded().then(function() {
             if (undefined === node.icon) node.icon = 0;
+            if (undefined === node.fold) node.fold = false;
             if (undefined === node.content) node.content = "";
             if (undefined === node.children) node.children = [];
             node.$bindTo($scope, "node").then(function() {
@@ -152,114 +153,112 @@
           };
         }
 
-        $scope.newSubItem = function(scope) {
-          // console.log($scope)
-          if ($scope.node.collapsed) $scope.node.collapsed = false;
-          var positionArray = $scope.$treeScope.getPositionArray($scope, $scope.$treeScope);
-          positionArray.push(0)
-          console.log(positionArray)
-          var nodeData = {
-            positionArray : positionArray,
-            key : $uiTreeHelper.getUniqueId(),
-            content : "",
-            collapsed : false,
-            icon : 0,
-            children : []
-          }
-          $scope.$treeScope.insertNodeAt(nodeData, positionArray, $scope.$treeScope);
-          $scope.$treeScope.record([nodeData], "insert");
-          return nodeData;
-          // //console.log(JSON.stringify($scope.tree))
-          // // if (!$scope.$childNodesScope.$modelValue) {
-          // //   $scope.$childNodesScope.$modelValue = [];
-          // //   $scope.$parentNodesScope.initSubNode($scope); // init sub nodes
-          // // }
-          // //console.log("newSubItem: " + JSON.stringify($scope.$childNodesScope.$modelValue, null, 2))
-          // setTimeout(function(){
-          //   $scope.addNewItem($scope.$childNodesScope, 0, {
-          //     content : "",
-          //     collapsed : false,
-          //   });
-          // }, 0);
-        };
+        // $scope.newSubItem = function(scope) {
+        //   // console.log($scope)
+        //   if ($scope.node.collapsed) $scope.node.collapsed = false;
+        //   var positionArray = $scope.$treeScope.getPositionArray($scope, $scope.$treeScope);
+        //   positionArray.push(0)
+        //   console.log(positionArray)
+        //   var nodeData = {
+        //     positionArray : positionArray,
+        //     key : $uiTreeHelper.getUniqueId(),
+        //     content : "",
+        //     collapsed : false,
+        //     icon : 0,
+        //     children : []
+        //   }
+        //   $scope.$treeScope.insertNodeAt(nodeData, positionArray, $scope.$treeScope);
+        //   $scope.$treeScope.record([nodeData], "insert");
+        //   return nodeData;
+        //   // //console.log(JSON.stringify($scope.tree))
+        //   // // if (!$scope.$childNodesScope.$modelValue) {
+        //   // //   $scope.$childNodesScope.$modelValue = [];
+        //   // //   $scope.$parentNodesScope.initSubNode($scope); // init sub nodes
+        //   // // }
+        //   // //console.log("newSubItem: " + JSON.stringify($scope.$childNodesScope.$modelValue, null, 2))
+        //   // setTimeout(function(){
+        //   //   $scope.addNewItem($scope.$childNodesScope, 0, {
+        //   //     content : "",
+        //   //     collapsed : false,
+        //   //   });
+        //   // }, 0);
+        // };
 
-        $scope.newSiblingNode = function(next) {
-          // var index = $scope.index();
-          // var position = -1;
-          // if (next) {
-          //   position = index+1;
-          // } else {
-          //   position = index;
-          // }
-          // console.log($scope);
-          // $scope.addNewItem($scope.$parentNodesScope, position, {
-          //   content : "",
-          //   collapsed : false,
-          // });
-          var positionArray = $scope.$treeScope.getPositionArray($scope, $scope.$treeScope);
-          if (next)
-            positionArray[positionArray.length-1]++;
+        // $scope.newSiblingNode = function(next) {
+        //   // var index = $scope.index();
+        //   // var position = -1;
+        //   // if (next) {
+        //   //   position = index+1;
+        //   // } else {
+        //   //   position = index;
+        //   // }
+        //   // console.log($scope);
+        //   // $scope.addNewItem($scope.$parentNodesScope, position, {
+        //   //   content : "",
+        //   //   collapsed : false,
+        //   // });
+        //   var positionArray = $scope.$treeScope.getPositionArray($scope, $scope.$treeScope);
+        //   if (next)
+        //     positionArray[positionArray.length-1]++;
 
-          var nodeData = {
-            positionArray : positionArray,
-            key : $uiTreeHelper.getUniqueId(),
-            content : "",
-            collapsed : false,
-            icon : 0,
-            children : []
-          }
-          $scope.$treeScope.insertNodeAt(nodeData, positionArray, $scope.$treeScope);
-          $scope.$treeScope.record([nodeData], "insert");
-          return nodeData;
-        };
+        //   var nodeData = {
+        //     positionArray : positionArray,
+        //     key : $uiTreeHelper.getUniqueId(),
+        //     content : "",
+        //     collapsed : false,
+        //     icon : 0,
+        //     children : []
+        //   }
+        //   $scope.$treeScope.insertNodeAt(nodeData, positionArray, $scope.$treeScope);
+        //   $scope.$treeScope.record([nodeData], "insert");
+        //   return nodeData;
+        // };
 
-        $scope.onKeyDown = function(scope, $event) {
-          $event.returnValue = false;
-          if ($event.shiftKey && 13 == $event.keyCode) {
-            $scope.$treeScope.clearNodeState();
-            var nodeData = scope.newSubItem(scope);
-            setTimeout(function(){
-              $scope.$treeScope.focusNodeAt(nodeData.positionArray);
-            }, 0);
+        // $scope.onKeyDown = function(scope, $event) {
+        //   $event.returnValue = false;
+        //   if ($event.shiftKey && 13 == $event.keyCode) {
+        //     $scope.$treeScope.clearNodeState();
+        //     var nodeData = scope.newSubItem(scope);
+        //     setTimeout(function(){
+        //       $scope.$treeScope.focusNodeAt(nodeData.positionArray);
+        //     }, 0);
 
-            // setTimeout(function(){
-            //   $scope.focusNode($scope.$childNodesScope, node.$$hashKey);
-            // }, 0);
+        //     // setTimeout(function(){
+        //     //   $scope.focusNode($scope.$childNodesScope, node.$$hashKey);
+        //     // }, 0);
             
-            $event.cancelBubble = true;
-          } else if (13 == $event.keyCode) {
-            //console.log($event)
-            var direction = null;
-            if ($event.ctrlKey) {
-              direction = true;
-            } else if ($event.altKey) {
-              direction = false;
-            }
-            console.log("direction")
-            console.log(direction)
-            if (null != direction) {
-              $scope.$treeScope.clearNodeState();
-              var nodeData = $scope.newSiblingNode(direction);
-              setTimeout(function(){
-                $scope.$treeScope.focusNodeAt(nodeData.positionArray);
-              }, 0);
-              // var node = $scope.newSiblingNode(direction);
-              // setTimeout(function(){
-              //   $scope.focusNode($scope.$parentNodesScope, node.$$hashKey);
-              // }, 0);
+        //     $event.cancelBubble = true;
+        //   } else if (13 == $event.keyCode) {
+        //     //console.log($event)
+        //     var direction = null;
+        //     if ($event.ctrlKey) {
+        //       direction = true;
+        //     } else if ($event.altKey) {
+        //       direction = false;
+        //     }
+        //     if (null != direction) {
+        //       $scope.$treeScope.clearNodeState();
+        //       var nodeData = $scope.newSiblingNode(direction);
+        //       setTimeout(function(){
+        //         $scope.$treeScope.focusNodeAt(nodeData.positionArray);
+        //       }, 0);
+        //       // var node = $scope.newSiblingNode(direction);
+        //       // setTimeout(function(){
+        //       //   $scope.focusNode($scope.$parentNodesScope, node.$$hashKey);
+        //       // }, 0);
 
-              $event.cancelBubble = true;
-            }
-          } else if ($event.ctrlKey && $event.shiftKey && 86 == $event.keyCode) {
-            $scope.$treeScope.clearNodeState();
-            var positionArray = $scope.$treeScope.getPositionArray($scope, $scope.$treeScope);
-            positionArray[positionArray.length-1]++;
-            $scope.$treeScope.paste(positionArray);
-            $event.cancelBubble = true;
-          } else {
-            $event.returnValue = true;
-          }
-        };
+        //       $event.cancelBubble = true;
+        //     }
+        //   } else if ($event.ctrlKey && $event.shiftKey && 86 == $event.keyCode) {
+        //     $scope.$treeScope.clearNodeState();
+        //     var positionArray = $scope.$treeScope.getPositionArray($scope, $scope.$treeScope);
+        //     positionArray[positionArray.length-1]++;
+        //     $scope.$treeScope.paste(positionArray);
+        //     $event.cancelBubble = true;
+        //   } else {
+        //     $event.returnValue = true;
+        //   }
+        // };
 
         $scope.onClick = function(scope, $event) {
           //console.log($event);
