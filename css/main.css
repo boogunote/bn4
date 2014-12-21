@@ -1,5 +1,13 @@
 body { padding-top: 40px; }
 
+textarea:focus, input:focus, input[type]:focus, .uneditable-input:focus {   
+    border-color: rgba(88, 88, 88, 0.8);
+    border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(88, 88, 88, 0.075) inset, 0 0 8px rgba(88, 88, 88, 0.6);
+    outline: 0 none;
+    -webkit-appearance:none;
+}
+
 .tree-container {
     margin-left: 20px;
     margin-bottom: 20px;
@@ -12,7 +20,7 @@ body { padding-top: 40px; }
 
 .tree-node-selected {
     /*border: 1px solid #dae2ea;*/
-    background: blue;
+    background: #D8D8D8;
 }
 
 .tree-node {

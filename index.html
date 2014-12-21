@@ -12,14 +12,14 @@
 <body ng-app="treesApp">
   <!-- Nested node template -->
   <script type="text/ng-template" id="nodes_renderer.html">
-    <div ng-model="selected" ng-model="node.collapsed" ng-class="{'tree-node-selected' : selected, 'tree-node-unselected' : !selected}">
+    <div ng-model="selected" ng-model="node.collapsed" ng-class="">
       <div class="tree-node">
         <div class="tree-node-wrapper">
           <div class="tree-node-icon-container">  
             <span class="tree-node-expand-button glyphicon" ng-class="{'glyphicon-plus-sign': node.collapsed, 'glyphicon-minus-sign': !node.collapsed}" ng-click="toggle(this)"></span>
             <span class="glyphicon tree-node-icon" ng-class="{'hidden':node.icon==0, 'glyphicon-flag':node.icon==1, 'glyphicon-ok':node.icon==2, 'glyphicon-remove':node.icon==3, 'glyphicon-star':node.icon==4, 'glyphicon-question-sign':node.icon==5, 'glyphicon-warning-sign':node.icon==6, 'glyphicon-fire':node.icon==7}"></span>
           </div>
-          <textarea class="tree-textarea animate msd-elastic" ng-class="{'tree-textarea-fold':node.fold}" ng-model="node.content" ng-keydown="onKeyDown(this, $event)" ng-click="onClick(this, $event)" ng-focus="onFocus(this, $event)"></textarea>
+          <textarea class="tree-textarea animate msd-elastic" ng-class="{'tree-textarea-fold':node.fold, 'tree-node-selected' : selected, 'tree-node-unselected' : !selected}" ng-model="node.content" ng-keydown="onKeyDown(this, $event)" ng-click="onClick(this, $event)" ng-focus="onFocus(this, $event)"></textarea>
         </div>
       </div>
     </div>
