@@ -60,7 +60,8 @@ body { padding-top: 40px; }
 }
 
 .tree-textarea-fold {
-    background-color: #E6E6E6;
+    color: #6E6E6E;
+    font-style: italic;
 }
 
 .tree-handle {
