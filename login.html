@@ -24,7 +24,7 @@
 
                     <div style="margin-bottom: 25px" class="input-group">
                         <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-                        <input id="login-username" type="text" class="form-control" name="username" value="" placeholder="username or email">                                        
+                        <input id="login-username" type="text" class="form-control" name="username" value="" placeholder="username or email" autocomplete="on">
                     </div>
 
                     <div style="margin-bottom: 25px" class="input-group">
@@ -131,6 +131,7 @@
 <script type="text/javascript" src="js/common.js"></script>
 <script type="text/javascript">
 var login = function () {
+    var hash = window.location.hash;
     var ref = new Firebase(window.firebase_url);
     ref.authWithPassword({
       email    : $("#login-username").val(),
@@ -139,17 +140,14 @@ var login = function () {
       console.log(err);
       if (err) {
         alert("Login Error: " + err.code);
-        // switch (err.code) {
-        //   case "INVALID_EMAIL":
-        //   // handle an invalid email
-        //   case "INVALID_PASSWORD":
-        //   // handle an invalid password
-        //   default:
-        // }
       } else if (authData) {
         // user authenticated with Firebase
         console.log("Logged In! User ID: " + authData.uid);
-        window.location.replace("list.html")
+        if (hash.length > 2) {
+            window.location.replace("index.html" + hash);
+        } else {
+            window.location.replace("list.html");
+        }
       }
     });
 }

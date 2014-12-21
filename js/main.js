@@ -189,14 +189,14 @@
 
       $scope.exportFuns.logout = function() {
         ref.unauth();
-        window.location.replace("login.html");
+        window.location.replace("login.html"+window.location.hash);
       }
 
       var logoutTime = (authData.expires - 60*60)*1000 - parseInt(new Date().getTime().toString());
 
       setTimeout(function(){
         if (confirm("Login expired. Go to login page or keep on this page?")) {
-          window.location.replace("login.html");
+          window.location.replace("login.html"+window.location.hash);
         }
       }, logoutTime);
 
@@ -236,7 +236,7 @@
       }
 
     } else {
-      window.location.replace("login.html");
+      window.location.replace("login.html"+window.location.hash);
     }
 
   });
