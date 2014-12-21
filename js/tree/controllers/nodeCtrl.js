@@ -69,17 +69,14 @@
             if (undefined === node.content) node.content = "";
             if (undefined === node.children) node.children = [];
             node.$bindTo($scope, "node").then(function() {
-              //console.log($scope.node)
-              // $scope.$watch(function() {
-              //     return $scope.node.children
-              //   }, 
-              //   function(newVal, oldVal) {
-              //     if (newVal != oldVal) {
-              //     }
-              //   });
-              // node.$watch(function(){
-              //   //console.log(node)
-              // });
+              $scope.$watch(function() {
+                  return $scope.node.collapsed
+                }, 
+                function(newVal, oldVal) {
+                  if (!newVal) {
+                    $scope.$broadcast('elastic:adjust');
+                  }
+                });
             });
 
             
