@@ -235,6 +235,10 @@
         },0);
       }
 
+      $scope.goListPage = function() {
+        window.location.replace('list.html');
+      }
+
     } else {
       window.location.replace("login.html"+window.location.hash);
     }

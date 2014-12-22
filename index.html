@@ -31,8 +31,6 @@
   <div class="tree-container" ng-controller="treesCtrl">
     <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
       <div id="connect_status"></div>
-      <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-chevron-left" ng-click="exportFuns.undo()"></button>
-      <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-chevron-right" ng-click="exportFuns.redo(this)"></button>
       <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-plus" ng-click="newSiblingNode(true)"></button>
       <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-play" ng-click="newSubItem()"></button>
       <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-refresh" ng-click="stepIcon(true)"></button>
@@ -40,6 +38,9 @@
       <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-download" ng-click="paste()"></button>
       <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-resize-small" ng-click="fold()"></button>
       <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-remove" ng-click="delete(true)"></button>
+      <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-home" ng-click="goListPage()"></button>
+      <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-chevron-left" ng-click="exportFuns.undo()"></button>
+      <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-chevron-right" ng-click="exportFuns.redo(this)"></button>
       <input ng-model="search_string"></input>
       <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-search" ng-click="search(this)"></button>
       <button type="button" class="btn btn-default navbar-btn glyphicon  glyphicon-open" ng-class="{'hidden': !search_results||search_results.length<=0}" ng-click="search_results=[]"></button>
