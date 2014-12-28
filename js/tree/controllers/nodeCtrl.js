@@ -39,50 +39,116 @@
           //console.log($scope.node_key)
 
           var node_base_url = $scope.base_url + "/nodes";
-
-          //You should put an empty node here. The binding will cause error without an empty child array.
-           $scope.node = {
-             content : "",
-             collapsed : true,
-          //   selected : false,
-          //   children:[]
-          };
-
-          // console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-          // console.log($scope.node_stub.key)
-          // console.log($scope)
-
-          $scope.children = $scope.node_stub.children;
-
           var node_url = node_base_url + "/" + $scope.node_stub.key;
-          // if (!$scope.node_stub.children) {
-          //   $scope.node_stub.children = [];
-          //   $scope.$parentNodesScope.initSubNode($scope); // init sub nodes
-          // };
-          //$scope.children = $scope.node_stub.children;
-          // console.log("dsdfsdfsdfdsfsdfsd: "+ node_url);
-          // console.log($scope.node_stub);
-          var node = $firebase(new Firebase(node_url)).$asObject();
-          node.$loaded().then(function() {
+          if ($scope.rawTreeData.nodes[$scope.node_stub.key]) {
+            $scope.node = $scope.rawTreeData.nodes[$scope.node_stub.key]
+          } else {
+            $scope.node = {
+              "content" : "",
+              "icon" : 0,
+              "collapsed" : false,
+              "fold" : false
+            }
+          }
+          var firstUpdate = true;
+
+          var nodeRef = new Firebase(node_url);
+          // console.log(node_url)
+          var justModified = false;
+          var onValue = function(dataSnapshot) {
+            if (justModified) return;
+            if (firstUpdate) {
+              console.log("firstUpdate")
+              firstUpdate = false;
+              return;
+            }
+            console.log("not firstUpdate")
+            // console.log("nodeRef.on('value', function(dataSnapshot) {")
+            // console.log(dataSnapshot.val())
+            var node = dataSnapshot.val();
             if (undefined === node.icon) node.icon = 0;
             if (undefined === node.fold) node.fold = false;
             if (undefined === node.content) node.content = "";
-            if (undefined === node.children) node.children = [];
-            node.$bindTo($scope, "node").then(function() {
-              $scope.$watch(function() {
-                  return $scope.node.collapsed
-                }, 
-                function(newVal, oldVal) {
-                  if (!newVal) {
-                    $scope.$broadcast('elastic:adjust');
-                  }
-                });
+            $uiTreeHelper.safeApply($scope, function() {
+              $scope.node = node
             });
+          }
+          nodeRef.on('value', onValue);
 
-            
-          });
+          var timerHander = null;
+          $scope.$watch(function() {
+              return $scope.node.content;
+            }, 
+            function(newVal, oldVal) {
+              if (newVal != oldVal) {
+                
+                justModified = true;
+                if (timerHander) {
+                  clearTimeout(timerHander);
+                  timerHander = null;
+                }
+                timerHander = setTimeout(function(){
+                  console.log("Time Out~");
+                  // console.log("Time Out~"+newVal);
+                  nodeRef.child('content').set(newVal);
+                  // console.log("Time Out~"+newVal);
+                  justModified = false;
+                  timerHander = null;                 
+                }, 1000);
+              };
+            }
+          );
+          $scope.$watch(function() {
+              return $scope.node.collapsed;
+            }, 
+            function(newVal, oldVal) {
+              if (!newVal) {
+                $scope.$broadcast('elastic:adjust');
+              }
+              if (newVal != oldVal) {
+                nodeRef.child('collapsed').set(newVal);
+              };
+            }
+          );
+          $scope.$watch(function() {
+              return $scope.node.fold;
+            }, 
+            function(newVal, oldVal) {
+              if (newVal != oldVal) {
+                nodeRef.child('fold').set(newVal);
+              };
+            }
+          );
+          $scope.$watch(function() {
+              return $scope.node.icon;
+            }, 
+            function(newVal, oldVal) {
+              if (newVal != oldVal) {
+                nodeRef.child('icon').set(newVal);
+              };
+            }
+          );
+          
+          // var node = $firebase(new Firebase(node_url)).$asObject();
+          // node.$loaded().then(function() {
+          //   if (undefined === node.icon) node.icon = 0;
+          //   if (undefined === node.fold) node.fold = false;
+          //   if (undefined === node.content) node.content = "";
+          //   if (undefined === node.children) node.children = [];
+          //   node.$bindTo($scope, "node").then(function() {
+          //     $scope.$watch(function() {
+          //         return $scope.node.collapsed
+          //       }, 
+          //       function(newVal, oldVal) {
+          //         if (!newVal) {
+          //           $scope.$broadcast('elastic:adjust');
+          //         }
+          //       });
+          //   });
+          // });
 
           $element.on('$destroy', function() {
+            nodeRef.off('value');
             treeNodesCtrl.scope.destroySubNode($scope); // destroy sub nodes
           });
         };

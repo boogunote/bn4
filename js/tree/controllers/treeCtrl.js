@@ -293,7 +293,7 @@
               content : _nodeData.content,
               collapsed : _nodeData.collapsed,
               fold : _nodeData.fold,
-              icon : !!_nodeData.icon?_nodeData.icon:null
+              icon : _nodeData.icon
             }
 
             console.log(node)
@@ -346,16 +346,12 @@
             nodeData.children.unshift($scope.removeNodeAt(positionArray.concat(i), rootScope))
           }
 
-          var sync = $firebase(new Firebase($scope.base_url + "/nodes"));
-          sync.$set(nodeScope.node_stub.key, null).then(function(ref) {
-            //console.log("ref key(): " + ref.key());   // key for the new ly created record
-          }, function(error) {
-            console.log("Error:", error);
-          });
-
           var nodeSub = parentNodeScope.$childNodesScope.$modelValue.splice(positionArray[positionArray.length-1], 1);
-
           $scope.syncNodeToRemote(parentNodeScope);
+
+          setTimeout(function() {
+            new Firebase($scope.base_url + "/nodes").child(nodeScope.node_stub.key).set({});
+          }, 0);
 
           return nodeData;
         }

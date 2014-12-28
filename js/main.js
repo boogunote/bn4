@@ -2,7 +2,7 @@
   'use strict';
 
   angular.module('treesApp', ['ui.tree', 'firebase', 'monospaced.elastic'])
-  .controller('treesCtrl', function($scope, $firebase, $location) {
+  .controller('treesCtrl', function($scope, $firebase, $location, $uiTreeHelper) {
     $scope.noteId = $location.path().substring(1);
     if (!$scope.noteId) {
       window.location.replace("login.html");
@@ -139,109 +139,90 @@
       "children" : []
     };
 
-    var ref = new Firebase(window.firebase_url);
-    var authData = ref.getAuth();
-    if (authData) {
-      // user authenticated with Firebase
-      console.log(authData);
-      //console.log(tree_url)
-      $scope.commandList = []
-      $scope.commandList.pos = -1;
-      $scope.username = authData.uid;
-      $scope.app_name = "boogunote";    
-      $scope.base_url = window.firebase_url + "/" + $scope.username + "/" + $scope.app_name + "/notes/" +$scope.noteId;
-      $scope.tree_url = $scope.base_url + "/tree";
-      var remoteTree = $firebase(new Firebase($scope.tree_url)).$asObject();
-      // remoteTree.$loaded().then(function() {
-      //   // console.log($scope.tree_url)
-      //   // console.log(remoteTree)
-      //   diffTree(remoteTree, $scope.tree, $scope.tree_url+"/children", syncRemoteToLocal);
-      //   //console.log(remoteTree)
-      //   //console.log($scope.tree)
-      remoteTree.$watch(function(){
-        // console.log("remote")
-        diffTree(remoteTree, $scope.tree, $scope.tree_url+"/children", syncRemoteToLocal);
-        //$scope.tree.children = remoteTree.children
-      // })
+    $scope.getOnlineData = function() {
+      var ref = new Firebase(window.firebase_url);
+      var authData = ref.getAuth();
+      if (authData) {
+        $scope.commandList = []
+        $scope.commandList.pos = -1;
+        $scope.username = authData.uid;
+        $scope.app_name = "boogunote";    
+        $scope.base_url = window.firebase_url + "/" + $scope.username + "/" + $scope.app_name + "/notes/" +$scope.noteId;
+        $scope.tree_url = $scope.base_url + "/tree";
 
-        // $scope.$watch(function() {
-        //     return $scope.tree;
-        //   }, 
-        //   function(newVal, oldVal) {
-        //   console.log("local")
-        //   diffTree(remoteTree, $scope.tree, tree_url+"/children", syncLocalToRemote);
-        //   console.log($scope.tree)
+        var refBase = new Firebase($scope.base_url);
+        refBase.on('value', function(dataSnapshot) {
+          $scope.rawTreeData = dataSnapshot.val();
+          diffTree($scope.rawTreeData.tree, $scope.tree, $scope.tree_url+"/children", syncRemoteToLocal);
+          refBase.off('value');
+          console.log("refBase.off('value');");
+          new Firebase($scope.tree_url).on('value', function(dataSnapshot) {
+            console.log("$scope.tree_url).on('value',");
+            $uiTreeHelper.safeApply($scope, function() {
+              diffTree(dataSnapshot.val(), $scope.tree, $scope.tree_url+"/children", syncRemoteToLocal);
+            });
+          });
+        });
+
+
+        // var remoteTree = $firebase(new Firebase($scope.tree_url)).$asObject();
+        // remoteTree.$watch(function(){
+        //   diffTree(remoteTree, $scope.tree, $scope.tree_url+"/children", syncRemoteToLocal);
         // });
-      });
-      $scope.note_item_info_url = $scope.base_url + "/info";
-      var noteItemInfo = $firebase(new Firebase($scope.note_item_info_url)).$asObject();
-      noteItemInfo.$watch(function(){
-        if (document.title != noteItemInfo.name) document.title = noteItemInfo.name;
-        $scope.title = noteItemInfo.name;
-      })
+        $scope.note_item_info_url = $scope.base_url + "/info";
+        var noteItemInfo = $firebase(new Firebase($scope.note_item_info_url)).$asObject();
+        noteItemInfo.$watch(function(){
+          if (document.title != noteItemInfo.name) document.title = noteItemInfo.name;
+          $scope.title = noteItemInfo.name;
+        })
 
-      // ref.onAuth(function(authData) {
-      //   if (!authData) {
-      //     alert("login again");
-      //     window.location.replace("login.html");
-      //   }
-      // });
-
-      $scope.exportFuns.logout = function() {
-        ref.unauth();
-        window.location.replace("login.html"+window.location.hash);
-      }
-
-      var logoutTime = (authData.expires - 60*60)*1000 - parseInt(new Date().getTime().toString());
-
-      setTimeout(function(){
-        if (confirm("Login expired. Go to login page or keep on this page?")) {
+        $scope.exportFuns.logout = function() {
+          ref.unauth();
           window.location.replace("login.html"+window.location.hash);
         }
-      }, logoutTime);
 
-      // var firstTimeLoad = true
-      $scope.isOffline = false;
+        var logoutTime = (authData.expires - 60*60)*1000 - parseInt(new Date().getTime().toString());
 
-      ref.child('.info/connected').on('value', function(connectedSnap) {
-        if (connectedSnap.val() === true) {
-          // if (!firstTimeLoad) {
-          //   var authData = ref.getAuth();
-          //   if (authData) {
-          //     if (confirm("Reconnected. Do you want to refesh this page")) {
-          //       location.reload();
-          //     }
-          //   }
-          // } else {
-          //   firstTimeLoad = false;
-          // }
-          $scope.isOffline = false;
-        } else {
-          $scope.isOffline = true;
-        }
-      });
+        setTimeout(function(){
+          if (confirm("Login expired. Go to login page or keep on this page?")) {
+            window.location.replace("login.html"+window.location.hash);
+          }
+        }, logoutTime);
 
-      //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-      // search
-      $scope.search = function() {
-        $scope.search_results = [];
-        $scope.exportFuns.searchInTree($scope.search_string, $scope.search_results);
+        $scope.isOffline = false;
+
+        ref.child('.info/connected').on('value', function(connectedSnap) {
+          if (connectedSnap.val() === true) {
+            $scope.isOffline = false;
+          } else {
+            $scope.isOffline = true;
+          }
+        });
+
+      } else {
+        window.location.replace("login.html"+window.location.hash);
       }
-      
-      $scope._focusNodeAt = function(positionArray) {
-        $scope.exportFuns.expandByPositionArray(positionArray);
-        setTimeout(function() {
-          $scope.exportFuns.focusNodeAt(positionArray)
-        },0);
-      }
-
-      $scope.goListPage = function() {
-        window.location.replace('list.html');
-      }
-
-    } else {
-      window.location.replace("login.html"+window.location.hash);
     }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // search
+    $scope.search = function() {
+      $scope.search_results = [];
+      $scope.exportFuns.searchInTree($scope.search_string, $scope.search_results);
+    }
+    
+    $scope._focusNodeAt = function(positionArray) {
+      $scope.exportFuns.expandByPositionArray(positionArray);
+      setTimeout(function() {
+        $scope.exportFuns.focusNodeAt(positionArray)
+      },0);
+    }
+
+    $scope.goListPage = function() {
+      window.location.replace('list.html');
+    }
+
+    $scope.getOnlineData();
 
   });
 
