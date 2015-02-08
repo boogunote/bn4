@@ -1,3 +1,5 @@
+This project is dropped. I am continually developing bn5.
+
 BooguNote-Web
 =============
 
